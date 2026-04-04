@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: tennisapp-db
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: tennisapp
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+    volumes:
+      - tennisapp-data:/var/lib/postgresql/data
+
+volumes:
+  tennisapp-data:
