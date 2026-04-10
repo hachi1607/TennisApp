@@ -3,7 +3,6 @@ package app.tennisapp.client;
 import app.tennisapp.config.ApiTennisProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriBuilder;
@@ -13,7 +12,6 @@ import java.time.LocalDate;
 import java.util.Optional;
 import java.util.function.Function;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ApiTennisClient {
