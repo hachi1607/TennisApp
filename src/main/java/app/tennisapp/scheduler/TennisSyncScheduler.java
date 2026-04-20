@@ -20,36 +20,50 @@ public class TennisSyncScheduler {
 
     @Scheduled(cron = "0 0 3 * * *")
     public void syncTournamentsDaily() {
+        log.info("Starting scheduled tournaments sync");
         try {
-            log.info("Starting scheduled tournaments sync");
             syncService.syncTournaments();
+            syncLogService.logSync(SyncEntityType.TOURNAMENT, SyncStatus.SUCCESS, null);
         } catch (Exception e) {
-            log.error("Failed to sync tournaments", e);
+            log.error("Scheduled tournaments sync failed", e);
             syncLogService.logSync(SyncEntityType.TOURNAMENT, SyncStatus.FAILED, e.getMessage());
         }
     }
 
     @Scheduled(cron = "0 0 5 * * MON")
     public void syncStandingsWeekly() {
+        log.info("Starting scheduled standings sync");
         try {
-            log.info("Starting scheduled standings sync");
             syncService.syncStandings();
+            syncLogService.logSync(SyncEntityType.RANKING, SyncStatus.SUCCESS, null);
         } catch (Exception e) {
-//            log.error("Failed to sync player externalId=" + externalPlayerKey, e); //TODO poprawić
-            syncLogService.logSync(SyncEntityType.PLAYER, SyncStatus.FAILED, e.getMessage());
+            log.error("Scheduled standings sync failed", e); //TODO poprawić
+            syncLogService.logSync(SyncEntityType.RANKING, SyncStatus.FAILED, e.getMessage());
         }
     }
 
     @Scheduled(cron = "0 0 4 * * *")
     public void syncFixturesDaily() {
         log.info("Starting scheduled fixtures sync");
-        LocalDate today = LocalDate.now();
-        syncService.syncFixtures(today.minusDays(1), today.plusDays(7));
+        try {
+            LocalDate today = LocalDate.now();
+            syncService.syncFixtures(today.minusDays(1), today.plusDays(7));
+            syncLogService.logSync(SyncEntityType.MATCH, SyncStatus.SUCCESS, null);
+        } catch (Exception e) {
+            log.error("Scheduled fixtures sync failed", e); //TODO poprawić
+            syncLogService.logSync(SyncEntityType.MATCH, SyncStatus.FAILED, e.getMessage());
+        }
     }
 
     @Scheduled(fixedDelay = 120_000, initialDelay = 60_000)
     public void syncLivescoresFrequently() {
         log.debug("Starting scheduled livescores sync");
-        syncService.syncLivescores();
+        try {
+            syncService.syncLivescores();
+            syncLogService.logSync(SyncEntityType.MATCH, SyncStatus.SUCCESS, null);
+        } catch (Exception e) {
+            log.error("Scheduled fixtures sync failed", e); //TODO poprawić
+            syncLogService.logSync(SyncEntityType.MATCH, SyncStatus.FAILED, e.getMessage());
+        }
     }
 }

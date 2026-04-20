@@ -31,7 +31,12 @@ public class ApiTennisClient {
                         .body(ApiTournamentsResponse.class))
                 .orElseThrow(() -> new IllegalStateException("No response from API Tennis for tournaments"));
 
-        return response.result() != null ? response.result() : Collections.emptyList();
+        if (response.result() == null
+                || response.result().isEmpty()
+                || response.result().getFirst() == null) {
+            throw new IllegalStateException("No tournaments returned from API Tennis");
+        }
+        return response.result();
     }
 
     public List<ApiMatchDto> fetchFixtures(LocalDate dateStart, LocalDate dateStop) {
@@ -46,7 +51,12 @@ public class ApiTennisClient {
                         .body(ApiMatchesResponse.class))
                 .orElseThrow(() -> new IllegalStateException("No response from API Tennis for matches(fixtures)"));
 
-        return response.result() != null ? response.result() : Collections.emptyList();
+        if (response.result() == null
+                || response.result().isEmpty()
+                || response.result().getFirst() == null) {
+            throw new IllegalStateException("No matches returned from API Tennis");
+        }
+        return response.result();
     }
 
     public List<ApiMatchDto> fetchLivescores() {
@@ -59,7 +69,10 @@ public class ApiTennisClient {
                         .body(ApiMatchesResponse.class))
                 .orElseThrow(() -> new IllegalStateException("No response from API Tennis for livescores(fixtures)"));
 
-        return response.result() != null ? response.result() : Collections.emptyList();
+        if (response.result() == null || response.result().isEmpty()) {
+            return Collections.emptyList();
+        }
+        return response.result();
     }
 
     public List<ApiStandingDto> fetchStandings(String eventType) {
@@ -73,10 +86,15 @@ public class ApiTennisClient {
                         .body(ApiStandingsResponse.class))
                 .orElseThrow(() -> new IllegalStateException("No response from API Tennis for livescores"));
 
-        return response.result() != null ? response.result() : Collections.emptyList();
+        if (response.result() == null
+                || response.result().isEmpty()
+                || response.result().getFirst() == null) {
+            throw new IllegalStateException("No standings returned from API Tennis");
+        }
+        return response.result();
     }
 
-    public Optional<ApiPlayerDto> fetchPlayer(Long playerKey) {
+    public ApiPlayerDto fetchPlayer(Long playerKey) {
         ApiPlayersResponse response = Optional.ofNullable(apiTennisRestClient.get()
                         .uri(uriBuilder -> uriBuilder
                                 .queryParam("method", "get_players")
@@ -87,9 +105,11 @@ public class ApiTennisClient {
                         .body(ApiPlayersResponse.class))
                 .orElseThrow(() -> new IllegalStateException("No response from API Tennis for player " + playerKey));
 
-        if (response.result() == null || response.result().isEmpty()) {
-            return Optional.empty();
+        if (response.result() == null
+                || response.result().isEmpty()
+                || response.result().getFirst() == null) {
+            throw new IllegalStateException("No player returned from API Tennis");
         }
-        return Optional.of(response.result().getFirst());
+        return response.result().getFirst();
     }
 }
