@@ -2,6 +2,8 @@ package app.tennisapp.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -59,7 +61,8 @@ public class Match {
     @Column(nullable = false)
     private boolean qualification;
 
-    @Column(columnDefinition = "JSONB")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
     private String scoresJson;
 
     private LocalDateTime lastSyncedAt;

@@ -9,8 +9,6 @@ import java.util.Optional;
 public interface PlayerRepository extends JpaRepository<Player, Long> {
     Optional<Player> findByExternalId(Long externalId);
 
-    boolean existsByExternalId(Long externalId);
-
     List<Player> findByFullNameContainingIgnoreCase(String name);
 
     List<Player> findByNationality(String nationality);

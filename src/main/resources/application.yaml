@@ -15,3 +15,6 @@ spring:
     enabled: true
     baseline-on-migrate: true
     locations: classpath:db/migration
+api-tennis:
+  url: https://api.api-tennis.com/tennis
+  key: c011626c4573046a66e0ffaf860a81d1d9304edee3e78f6adfdf0fa5b0565c3a

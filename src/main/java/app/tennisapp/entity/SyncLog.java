@@ -17,8 +17,9 @@ public class SyncLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String entityType;
+    private SyncEntityType entityType;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

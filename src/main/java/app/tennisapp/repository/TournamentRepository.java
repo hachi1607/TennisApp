@@ -10,8 +10,6 @@ import java.util.Optional;
 public interface TournamentRepository extends JpaRepository<Tournament, Long> {
     Optional<Tournament> findByExternalId(Long externalId);
 
-    boolean existsByExternalId(Long externalId);
-
     List<Tournament> findByEventCategory(EventCategory eventCategory);
 
     List<Tournament> findByNameContainingIgnoreCase(String name);

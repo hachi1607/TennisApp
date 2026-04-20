@@ -2,12 +2,18 @@ package app.tennisapp.mapper;
 
 import app.tennisapp.dto.MatchDto;
 import app.tennisapp.entity.Match;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class MatchMapper {
+    private final ObjectMapper objectMapper;
+
     public MatchDto toDto(Match match) {
         return new MatchDto(
                 match.getId(),
@@ -29,7 +35,7 @@ public class MatchMapper {
                 match.getRound(),
                 match.isLive(),
                 match.isQualification(),
-                match.getScoresJson()
+                parseScores(match.getScoresJson())
         );
     }
 
@@ -37,5 +43,14 @@ public class MatchMapper {
         return matches.stream()
                 .map(this::toDto)
                 .toList();
+    }
+
+    private JsonNode parseScores(String json) {
+        if (json == null || json.isBlank()) return null;
+        try {
+            return objectMapper.readTree(json);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

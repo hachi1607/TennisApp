@@ -1,0 +1,1 @@
+ALTER TABLE ranking_entries DROP COLUMN external_id;

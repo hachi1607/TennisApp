@@ -9,7 +9,5 @@ import java.util.Optional;
 public interface PlayerSeasonStatsRepository extends JpaRepository<PlayerSeasonStats, Long> {
     List<PlayerSeasonStats> findByPlayerId(Long playerId);
 
-    List<PlayerSeasonStats> findByPlayerIdAndType(Long playerId, String type);
-
     Optional<PlayerSeasonStats> findByPlayerIdAndSeasonAndType(Long playerId, String season, String type);
 }

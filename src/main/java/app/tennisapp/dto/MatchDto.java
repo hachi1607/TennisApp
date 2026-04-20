@@ -1,5 +1,7 @@
 package app.tennisapp.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.time.LocalDate;
 
 public record MatchDto(
@@ -22,6 +24,6 @@ public record MatchDto(
         String round,
         boolean isLive,
         boolean qualification,
-        String scoresJson
+        JsonNode scoresJson
 ) {
 }

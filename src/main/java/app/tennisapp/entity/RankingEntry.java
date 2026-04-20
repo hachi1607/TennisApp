@@ -22,8 +22,6 @@ public class RankingEntry {
     @JoinColumn(name = "player_id", nullable = false)
     private Player player;
 
-    private Long externalId;
-
     @Column(nullable = false)
     private int position;
 
