@@ -103,7 +103,7 @@ public class SyncService {
 
     @Transactional
     public void syncFixtures(LocalDate dateStart, LocalDate dateStop) {
-        syncMatchesInternal(
+        syncMatches(
                 apiTennisClient.fetchFixtures(dateStart, dateStop),
                 "fixtures " + dateStart + " to " + dateStop
         );
@@ -111,7 +111,7 @@ public class SyncService {
 
     @Transactional
     public void syncLivescores() {
-        syncMatchesInternal(apiTennisClient.fetchLivescores(), "livescores");
+        syncMatches(apiTennisClient.fetchLivescores(), "livescores");
     }
 
     @Transactional
@@ -141,7 +141,7 @@ public class SyncService {
         log.info("Standings sync finished: processed={}", processed);
     }
 
-    private void syncMatchesInternal(List<ApiMatchDto> matches, String context) {
+    private void syncMatches(List<ApiMatchDto> matches, String context) {
         int processed = 0;
         int skipped = 0;
 

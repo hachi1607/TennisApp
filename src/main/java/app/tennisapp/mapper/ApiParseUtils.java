@@ -6,8 +6,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 @NoArgsConstructor
-public final class ApiParseUtils {
-
+public class ApiParseUtils {
     public static Long parseLong(String value) {
         if (value == null || value.isBlank()) return null;
         try {
