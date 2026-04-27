@@ -4,6 +4,10 @@ import app.tennisapp.dto.PlayerDto;
 import app.tennisapp.dto.PlayerSeasonStatsDto;
 import app.tennisapp.service.PlayerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,23 +21,16 @@ public class PlayerController {
     private final PlayerService playerService;
 
     @GetMapping
-    public ResponseEntity<List<PlayerDto>> getAllPlayers() {
-        return ResponseEntity.ok().body(playerService.getAllPlayers());
+    public ResponseEntity<Page<PlayerDto>> getPlayers(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String nationality,
+            @PageableDefault(sort = "fullName", direction = Sort.Direction.ASC) Pageable pageable) {
+        return ResponseEntity.ok().body(playerService.getPlayers(name, nationality, pageable));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PlayerDto> getPlayerById(@PathVariable Long id) {
         return ResponseEntity.ok().body(playerService.getPlayerById(id));
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<List<PlayerDto>> searchPlayersByName(@RequestParam String name) {
-        return ResponseEntity.ok().body(playerService.searchPlayersByName(name));
-    }
-
-    @GetMapping("/nationality/{nationality}")
-    public ResponseEntity<List<PlayerDto>> getPlayersByNationality(@PathVariable String nationality) {
-        return ResponseEntity.ok().body(playerService.getPlayersByNationality(nationality));
     }
 
     @GetMapping("/{id}/stats")

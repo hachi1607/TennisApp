@@ -55,8 +55,10 @@ public class TennisSyncScheduler {
         }
     }
 
-    @Scheduled(fixedDelayString = "${scheduler.sync.livescores-delay-ms}",
-            initialDelayString = "${scheduler.sync.livescores-initial-delay-ms}")
+    @Scheduled(
+            fixedDelayString = "${scheduler.sync.livescores-delay-ms}",
+            initialDelayString = "${scheduler.sync.livescores-initial-delay-ms}"
+    )
     public void syncLivescoresFrequently() {
         log.debug("Starting scheduled livescores sync");
         try {

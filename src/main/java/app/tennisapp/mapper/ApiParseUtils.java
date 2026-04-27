@@ -43,4 +43,9 @@ public class ApiParseUtils {
             return null;
         }
     }
+
+    public static boolean isAbbreviatedName(String name) {
+        if (name == null || name.isBlank()) return false;
+        return name.matches("^[A-Z]\\. .+");
+    }
 }

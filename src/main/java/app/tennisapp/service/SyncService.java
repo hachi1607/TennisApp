@@ -73,11 +73,20 @@ public class SyncService {
 
     @Transactional
     public void syncPlayer(Long externalPlayerKey) {
+        log.info("Starting syncing player id={}", externalPlayerKey);
         ApiPlayerDto dto = apiTennisClient.fetchPlayer(externalPlayerKey);
 
         Player player = playerRepository.findByExternalId(externalPlayerKey)
-                .map(existing -> apiPlayermapper.updateEntity(existing, dto))
-                .orElseGet(() -> apiPlayermapper.toEntity(dto, externalPlayerKey));
+                .map(existing -> {
+                    log.info("Update entity player entity with name: {}", dto.playerName());
+                    return apiPlayermapper.updateEntity(existing, dto);
+                })
+                .orElseGet(
+                        () -> {
+                            log.info("To entity player entity with name: {}", dto.playerName());
+                            return apiPlayermapper.toEntity(dto, externalPlayerKey);
+                        }
+                );
 
         player = playerRepository.save(player);
 

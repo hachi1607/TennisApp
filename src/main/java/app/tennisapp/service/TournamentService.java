@@ -19,7 +19,19 @@ public class TournamentService {
     private final TournamentRepository tournamentRepository;
     private final TournamentMapper tournamentMapper;
 
-    public List<TournamentDto> getAllTournaments() {
+    public List<TournamentDto> getTournaments(EventCategory category, String name) {
+        if (category != null && name != null) {
+            return tournamentMapper.toDto(
+                    tournamentRepository.findByEventCategoryAndNameContainingIgnoreCase(category, name));
+        }
+        if (category != null) {
+            return tournamentMapper.toDto(
+                    tournamentRepository.findByEventCategory(category));
+        }
+        if (name != null) {
+            return tournamentMapper.toDto(
+                    tournamentRepository.findByNameContainingIgnoreCase(name));
+        }
         return tournamentMapper.toDto(tournamentRepository.findAll());
     }
 
@@ -27,13 +39,5 @@ public class TournamentService {
         return tournamentRepository.findById(id)
                 .map(tournamentMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Tournament not found: " + id));
-    }
-
-    public List<TournamentDto> getTournamentsByCategory(EventCategory category) {
-        return tournamentMapper.toDto(tournamentRepository.findByEventCategory(category));
-    }
-
-    public List<TournamentDto> searchTournamentsByName(String name) {
-        return tournamentMapper.toDto(tournamentRepository.findByNameContainingIgnoreCase(name));
     }
 }

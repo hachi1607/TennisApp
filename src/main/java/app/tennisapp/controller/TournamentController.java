@@ -20,22 +20,14 @@ public class TournamentController {
     private final TournamentService tournamentService;
 
     @GetMapping
-    public ResponseEntity<List<TournamentDto>> getAllTournaments() {
-        return ResponseEntity.ok().body(tournamentService.getAllTournaments());
+    public ResponseEntity<List<TournamentDto>> getTournaments(
+            @RequestParam(required = false) EventCategory category,
+            @RequestParam(required = false) String name) {
+        return ResponseEntity.ok().body(tournamentService.getTournaments(category, name));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<TournamentDto> getTournamentById(@PathVariable Long id) {
         return ResponseEntity.ok().body(tournamentService.getTournamentById(id));
-    }
-
-    @GetMapping("/category/{category}")
-    public ResponseEntity<List<TournamentDto>> getTournamentsByCategory(@PathVariable EventCategory category) {
-        return ResponseEntity.ok().body(tournamentService.getTournamentsByCategory(category));
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<List<TournamentDto>> searchTournamentsByName(@RequestParam String name) {
-        return ResponseEntity.ok().body(tournamentService.searchTournamentsByName(name));
     }
 }

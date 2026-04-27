@@ -6,6 +6,10 @@ import app.tennisapp.dto.NewsDto;
 import app.tennisapp.service.NewsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,8 +30,11 @@ public class NewsController {
     }
 
     @GetMapping
-    public ResponseEntity<List<NewsDto>> getAllNews() { // getAll paginacja!
-        return ResponseEntity.ok().body(newsService.getAllNews());
+    public ResponseEntity<Page<NewsDto>> getAllNewsPaged(
+    @PageableDefault(size = 20, sort = "date", direction = Sort.Direction.DESC)
+    Pageable pageable
+    ) {
+        return ResponseEntity.ok().body(newsService.getAllNewsPaged(pageable));
     }
 
     @GetMapping("/{id}")

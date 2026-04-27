@@ -1,15 +1,10 @@
 package app.tennisapp.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-public record ErrorMessage(String message, LocalDateTime timestamp, List<ValidationError> validationErrors) {
+public record ErrorMessage(String message, int status, LocalDateTime timestamp) {
 
-    public ErrorMessage(String message) {
-        this(message, LocalDateTime.now(), null);
-    }
-
-    public ErrorMessage(String message, List<ValidationError> validationErrors) {
-        this(message, LocalDateTime.now(), validationErrors);
+    public ErrorMessage(String message, int status) {
+        this(message, status, LocalDateTime.now());
     }
 }

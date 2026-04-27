@@ -8,8 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
-import static app.tennisapp.mapper.ApiParseUtils.parseBirthDate;
-import static app.tennisapp.mapper.ApiParseUtils.parseInt;
+import static app.tennisapp.mapper.ApiParseUtils.*;
 
 @Component
 public class ApiPlayerMapper {
@@ -26,8 +25,12 @@ public class ApiPlayerMapper {
     }
 
     public Player updateEntity(Player existing, ApiPlayerDto dto) {
+        String name = isAbbreviatedName(dto.playerName())
+                ? existing.getFullName()
+                : dto.playerName();
+
         return existing.toBuilder()
-                .fullName(dto.playerName())
+                .fullName(name)
                 .nationality(dto.playerCountry())
                 .imageUrl(dto.playerLogo())
                 .birthDate(parseBirthDate(dto.playerBday()))

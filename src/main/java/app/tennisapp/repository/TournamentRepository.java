@@ -13,4 +13,6 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
     List<Tournament> findByEventCategory(EventCategory eventCategory);
 
     List<Tournament> findByNameContainingIgnoreCase(String name);
+
+    List<Tournament> findByEventCategoryAndNameContainingIgnoreCase(EventCategory category, String name);
 }

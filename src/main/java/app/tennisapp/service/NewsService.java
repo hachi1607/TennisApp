@@ -10,12 +10,16 @@ import app.tennisapp.mapper.NewsMapper;
 import app.tennisapp.repository.NewsRepository;
 import app.tennisapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NewsService {
@@ -23,8 +27,14 @@ public class NewsService {
     private final UserRepository userRepository;
     private final NewsMapper newsMapper;
 
-    public List<NewsDto> getAllNews() {
-        return newsMapper.toDto(newsRepository.findAllByOrderByPublishedAtDesc());
+//    public List<NewsDto> getAllNews() {
+//        return newsMapper.toDto(newsRepository.findAllByOrderByPublishedAtDesc());
+//    }
+
+    public Page<NewsDto> getAllNewsPaged(Pageable pageable) {
+        log.debug("Fetching all news, page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
+        return newsRepository.findAllPaged(pageable)
+                .map(newsMapper::toDto);
     }
 
     public NewsDto getNewsById(Long id) {
@@ -38,11 +48,14 @@ public class NewsService {
 
     @Transactional
     public NewsDto createNews(Long authorId, CreateNewsCommand command) {
+        log.info("Creating news, authorId={}, title='{}'", authorId, command.title());
         User author = userRepository.findById(authorId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + authorId));
 
         News news = newsMapper.toEntity(command, author);
-        return newsMapper.toDto(newsRepository.save(news));
+        News saved = newsRepository.save(news);
+        log.info("News created, id={}", saved.getId());
+        return newsMapper.toDto(saved);
     }
 
     @Transactional
@@ -72,10 +85,13 @@ public class NewsService {
 
     @Transactional
     public void deleteNewsById(Long id) {
+        log.info("Deleting news id={}", id);
         if (!newsRepository.existsById(id)) {
+            log.warn("News not found: id={}", id);
             throw new ResourceNotFoundException("News not found: " + id);
         }
         newsRepository.deleteById(id);
+        log.info("News deleted id={}", id);
     }
 
     private News getNewsEntityById(Long id) {
