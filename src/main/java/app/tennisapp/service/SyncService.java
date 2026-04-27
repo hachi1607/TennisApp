@@ -120,6 +120,7 @@ public class SyncService {
 
     @Transactional
     public void syncLivescores() {
+        matchRepository.resetAllLiveMatches();
         syncMatches(apiTennisClient.fetchLivescores(), "livescores");
     }
 

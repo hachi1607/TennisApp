@@ -51,7 +51,7 @@ public class MatchService {
 
     public MatchDto getMatchById(Long id) {
         log.debug("Fetching match id={}", id);
-        return matchRepository.findById(id)
+        return matchRepository.getMatchByIdWithPlayers(id)
                 .map(matchMapper::toDto)
                 .orElseThrow(() -> {
                     log.warn("Match not found: id={}", id);

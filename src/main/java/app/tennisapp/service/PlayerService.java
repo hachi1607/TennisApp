@@ -20,7 +20,6 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class PlayerService {
 
     private final PlayerRepository playerRepository;
@@ -29,6 +28,7 @@ public class PlayerService {
     private final SyncService syncService;
     private final EntityManager entityManager;
 
+    @Transactional(readOnly = true)
     public Page<PlayerDto> getPlayers(String name, String nationality, Pageable pageable) {
         log.debug("Fetching players name={}, nationality={}, page={}, size={}",
                 name, nationality, pageable.getPageNumber(), pageable.getPageSize());
@@ -49,6 +49,7 @@ public class PlayerService {
                 .map(playerMapper::toDto);
     }
 
+    @Transactional
     public PlayerDto getPlayerById(Long id) {
         log.debug("Fetching player id={}", id);
         Player player = playerRepository.findById(id)
@@ -66,6 +67,7 @@ public class PlayerService {
         return playerMapper.toDto(player);
     }
 
+    @Transactional
     public List<PlayerSeasonStatsDto> getPlayerStats(Long playerId) {
         log.debug("Fetching stats for player id={}", playerId);
         if (!playerRepository.existsById(playerId)) {

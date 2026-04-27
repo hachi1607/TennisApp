@@ -31,7 +31,7 @@ public class NewsController {
 
     @GetMapping
     public ResponseEntity<Page<NewsDto>> getAllNewsPaged(
-    @PageableDefault(size = 20, sort = "date", direction = Sort.Direction.DESC)
+    @PageableDefault(size = 20, sort = "publishedAt", direction = Sort.Direction.DESC)
     Pageable pageable
     ) {
         return ResponseEntity.ok().body(newsService.getAllNewsPaged(pageable));

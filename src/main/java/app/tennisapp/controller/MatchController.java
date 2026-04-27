@@ -31,13 +31,13 @@ public class MatchController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFrom,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTo,
             @PageableDefault(sort = "date", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(matchService.getMatches(
+        return ResponseEntity.ok().body(matchService.getMatches(
                 live, playerId, firstPlayerId, secondPlayerId,
                 tournamentId, dateFrom, dateTo, pageable));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<MatchDto> getMatchById(@PathVariable Long id) {
-        return ResponseEntity.ok(matchService.getMatchById(id));
+        return ResponseEntity.ok().body(matchService.getMatchById(id));
     }
 }
