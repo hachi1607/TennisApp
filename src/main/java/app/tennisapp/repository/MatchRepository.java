@@ -1,6 +1,8 @@
 package app.tennisapp.repository;
 
 import app.tennisapp.entity.Match;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,8 +15,8 @@ import java.util.Optional;
 public interface MatchRepository extends JpaRepository<Match, Long> {
     Optional<Match> findByExternalId(Long externalId);
 
-    @Query("SELECT m FROM Match m LEFT JOIN FETCH m.firstPlayer LEFT JOIN FETCH m.secondPlayer LEFT JOIN FETCH m.tournament ORDER BY m.date DESC, m.time ASC")
-    List<Match> findAll();
+    @Query("SELECT m FROM Match m LEFT JOIN FETCH m.firstPlayer LEFT JOIN FETCH m.secondPlayer LEFT JOIN FETCH m.tournament")
+    Page<Match> findAllWithPlayers(Pageable pageable);
 
     @Query("SELECT m FROM Match m LEFT JOIN FETCH m.firstPlayer LEFT JOIN FETCH m.secondPlayer LEFT JOIN FETCH m.tournament WHERE m.date BETWEEN :start AND :end ORDER BY m.date ASC, m.time ASC")
     List<Match> findByDateBetweenOrderByDateAscTimeAsc(@Param("start") LocalDate start, @Param("end") LocalDate end);

@@ -18,7 +18,7 @@ public class TennisSyncScheduler {
     private final SyncService syncService;
     private final SyncLogService syncLogService;
 
-    @Scheduled(cron = "0 0 3 * * *")
+    @Scheduled(cron = "${scheduler.sync.tournaments-cron}")
     public void syncTournamentsDaily() {
         log.info("Starting scheduled tournaments sync");
         try {
@@ -30,7 +30,7 @@ public class TennisSyncScheduler {
         }
     }
 
-    @Scheduled(cron = "0 0 5 * * MON")
+    @Scheduled(cron = "${scheduler.sync.standings-cron}")
     public void syncStandingsWeekly() {
         log.info("Starting scheduled standings sync");
         try {
@@ -42,7 +42,7 @@ public class TennisSyncScheduler {
         }
     }
 
-    @Scheduled(cron = "0 0 4 * * *")
+    @Scheduled(cron = "${scheduler.sync.fixtures-cron}")
     public void syncFixturesDaily() {
         log.info("Starting scheduled fixtures sync");
         try {
@@ -55,7 +55,8 @@ public class TennisSyncScheduler {
         }
     }
 
-    @Scheduled(fixedDelay = 120_000, initialDelay = 60_000)
+    @Scheduled(fixedDelayString = "${scheduler.sync.livescores-delay-ms}",
+            initialDelayString = "${scheduler.sync.livescores-initial-delay-ms}")
     public void syncLivescoresFrequently() {
         log.debug("Starting scheduled livescores sync");
         try {

@@ -1,4 +1,6 @@
 spring:
+  mvc:
+    api
   application:
     name: tennis-app
 
@@ -18,3 +20,11 @@ spring:
 api-tennis:
   url: https://api.api-tennis.com/tennis
   key: c011626c4573046a66e0ffaf860a81d1d9304edee3e78f6adfdf0fa5b0565c3a
+
+scheduler:
+  sync:
+    tournaments-cron: "0 0 3 * * *"
+    standings-cron: "0 0 5 * * MON"
+    fixtures-cron: "0 0 4 * * *"
+    livescores-delay-ms: 120000
+    livescores-initial-delay-ms: 60000

@@ -5,6 +5,8 @@ import app.tennisapp.exception.ResourceNotFoundException;
 import app.tennisapp.mapper.MatchMapper;
 import app.tennisapp.repository.MatchRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -17,8 +19,9 @@ public class MatchService {
     private final MatchRepository matchRepository;
     private final MatchMapper matchMapper;
 
-    public List<MatchDto> getAllMatches() {
-        return matchMapper.toDto(matchRepository.findAll());
+    public Page<MatchDto> getAllMatches(Pageable pageable) {
+        return matchRepository.findAllWithPlayers(pageable)
+                .map(matchMapper::toDto);
     }
 
     public MatchDto getMatchById(Long id) {

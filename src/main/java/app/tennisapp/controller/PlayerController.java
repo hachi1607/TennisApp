@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RequiredArgsConstructor
-@RequestMapping("/player")
+@RequestMapping("/api/v1/players")
 @RestController
 public class PlayerController {
 

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 
 @RequiredArgsConstructor
-@RequestMapping("/admin/sync")
+@RequestMapping("/api/v1/admin/sync")
 @RestController
 public class AdminSyncController {
     private final SyncLogService syncLogService;

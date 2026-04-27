@@ -3,6 +3,10 @@ package app.tennisapp.controller;
 import app.tennisapp.dto.MatchDto;
 import app.tennisapp.service.MatchService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,14 +15,15 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RequiredArgsConstructor
-@RequestMapping("/match")
+@RequestMapping("/api/v1/matches")
 @RestController
 public class MatchController {
     private final MatchService matchService;
 
     @GetMapping
-    public ResponseEntity<List<MatchDto>> getAllMatches() {
-        return ResponseEntity.ok().body(matchService.getAllMatches());
+    public ResponseEntity<Page<MatchDto>> getAllMatches(
+            @PageableDefault(size = 20, sort = "date", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(matchService.getAllMatches(pageable));
     }
 
     @GetMapping("/{id}")

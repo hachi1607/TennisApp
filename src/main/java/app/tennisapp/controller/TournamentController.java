@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RequiredArgsConstructor
-@RequestMapping("/tournament")
+@RequestMapping("/api/v1/tournaments")
 @RestController
 public class TournamentController {
     private final TournamentService tournamentService;

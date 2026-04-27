@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RequiredArgsConstructor
-@RequestMapping("/favorite")
+@RequestMapping("/api/v1/favorites")
 @RestController
 public class FavoritePlayerController {
     private final FavoritePlayerService favoritePlayerService;
