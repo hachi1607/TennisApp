@@ -3,12 +3,13 @@ package app.tennisapp.repository;
 import app.tennisapp.entity.Match;
 import app.tennisapp.entity.RankingEntry;
 import app.tennisapp.entity.RankingType;
+import io.micrometer.common.lang.NonNull;
+import io.micrometer.common.lang.NonNullApi;
+import io.micrometer.common.lang.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -42,6 +43,10 @@ public interface MatchRepository extends JpaRepository<Match, Long>, JpaSpecific
 //
 //    @Query("SELECT m FROM Match m LEFT JOIN FETCH m.firstPlayer LEFT JOIN FETCH m.secondPlayer LEFT JOIN FETCH m.tournament WHERE m.isLive = true")
 //    List<Match> findByIsLiveTrue();
+
+    @NonNull
+    @EntityGraph("Match.withRelations")
+    Page<Match> findAll(@Nullable Specification<Match> spec,  @NonNull Pageable pageable);
 
     @Modifying // dla queries od modyfikowania danych zamiast odczytu
     @Query("UPDATE Match m SET m.isLive = false WHERE m.isLive = true")

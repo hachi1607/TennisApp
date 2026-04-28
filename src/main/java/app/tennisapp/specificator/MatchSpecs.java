@@ -62,16 +62,4 @@ public class MatchSpecs {
                         cb.conjunction() :
                         cb.lessThanOrEqualTo(root.get("date"), dateTo);
     }
-
-    public Specification<Match> withRelations() {
-        return (root, query, cb) -> {
-            if (Long.class != query.getResultType()) { // tylko dla main zapytania, nie count
-                root.fetch("firstPlayer", JoinType.LEFT);
-                root.fetch("secondPlayer", JoinType.LEFT);
-                root.fetch("tournament", JoinType.LEFT);
-                query.distinct(true);
-            }
-            return cb.conjunction();
-        };
-    }
 }

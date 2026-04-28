@@ -9,6 +9,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
+@NamedEntityGraph(
+        name = "Match.withRelations",
+        attributeNodes = {
+                @NamedAttributeNode("firstPlayer"),
+                @NamedAttributeNode("secondPlayer"),
+                @NamedAttributeNode("tournament")
+        }
+)
 @Table(name = "matches")
 @Getter
 @Builder(toBuilder = true)

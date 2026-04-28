@@ -36,7 +36,6 @@ public class MatchService {
                 live, playerId, tournamentId, dateFrom, dateTo);
 
         Specification<Match> spec = Specification.allOf(
-                matchSpecs.withRelations(),
                 matchSpecs.isLive(live),
                 matchSpecs.hasPlayer(playerId),
                 matchSpecs.headToHead(firstPlayerId, secondPlayerId),
