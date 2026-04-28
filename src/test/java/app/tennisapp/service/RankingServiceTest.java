@@ -16,6 +16,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,7 +50,7 @@ public class RankingServiceTest {
 
     // getRankingByType
     @Test
-    void getRankingByType_ATP_returnsAtpRanking() {
+    void shouldReturnAtpRanking() {
         RankingEntry entry = buildEntry(1L, 1, RankingType.ATP);
         RankingEntryDto dto = buildEntryDto(1L, 1, RankingType.ATP);
 
@@ -58,15 +60,14 @@ public class RankingServiceTest {
 
         List<RankingEntryDto> result = rankingService.getRankingByType(RankingType.ATP);
 
-        assertThat(result).hasSize(1);
-        assertThat(result.getFirst().rankingType()).isEqualTo(RankingType.ATP);
-        assertThat(result.getFirst().position()).isEqualTo(1);
+        assertNotNull(result);
+        assertEquals(List.of(dto), result);
         verify(rankingRepository).findByRankingTypeOrderByPositionAsc(RankingType.ATP);
         verify(rankingMapper).toDto(List.of(entry));
     }
 
     @Test
-    void getRankingByType_WTA_returnsWtaRanking() {
+    void shouldReturnWtaRanking() {
         RankingEntry entry = buildEntry(1L, 1, RankingType.WTA);
         RankingEntryDto dto = buildEntryDto(1L, 1, RankingType.WTA);
 
@@ -76,13 +77,13 @@ public class RankingServiceTest {
 
         List<RankingEntryDto> result = rankingService.getRankingByType(RankingType.WTA);
 
-        assertThat(result).hasSize(1);
-        assertThat(result.getFirst().rankingType()).isEqualTo(RankingType.WTA);
+        assertNotNull(result);
+        assertEquals(List.of(dto), result);
         verify(rankingRepository).findByRankingTypeOrderByPositionAsc(RankingType.WTA);
     }
 
     @Test
-    void getRankingByType_whenEmpty_returnsEmptyList() {
+    void shouldReturnEmptyList() {
         when(rankingRepository.findByRankingTypeOrderByPositionAsc(RankingType.ATP))
                 .thenReturn(List.of());
         when(rankingMapper.toDto(List.of())).thenReturn(List.of());

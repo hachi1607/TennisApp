@@ -26,6 +26,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -65,6 +67,11 @@ class PlayerServiceTest {
                 LocalDate.of(2003, 5, 5), null, "https://example.com/alcaraz.jpg");
     }
 
+    private PlayerDto samplePlayerDto(String name, String nationality) {
+        return new PlayerDto(1L, 100L, name, nationality,
+                LocalDate.of(2003, 5, 5), null, "https://example.com/alcaraz.jpg");
+    }
+
     private PlayerSeasonStats sampleSeasonStats(Player player) {
         return PlayerSeasonStats.builder()
                 .id(1L)
@@ -95,16 +102,17 @@ class PlayerServiceTest {
     void shouldReturnAllPlayersPagedWhenNoFilters() {
         Pageable pageable = PageRequest.of(0, 10);
         Player player = samplePlayer();
+        PlayerDto playerDto = samplePlayerDto();
         Page<Player> playerPage = new PageImpl<>(List.of(player));
+        Page<PlayerDto> playerDtoPage = new PageImpl<>(List.of(playerDto));
 
         when(playerRepository.findAllPaged(pageable)).thenReturn(playerPage);
         when(playerMapper.toDto(player)).thenReturn(samplePlayerDto());
 
         Page<PlayerDto> result = playerService.getPlayers(null, null, pageable);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getTotalElements()).isEqualTo(1);
-        assertThat(result.getContent().getFirst().fullName()).isEqualTo("Carlos Alcaraz");
+        assertNotNull(result);
+        assertEquals(playerDtoPage, result);
         verify(playerRepository, times(1)).findAllPaged(pageable);
         verify(playerRepository, never()).findByFullNameContainingIgnoreCase(any(), any());
         verify(playerRepository, never()).findByNationalityIgnoreCase(any(), any());
@@ -131,18 +139,21 @@ class PlayerServiceTest {
 
     @Test
     void shouldFilterPlayersByNationalityOnly() {
+        String nationality = "ESP";
+
         Pageable pageable = PageRequest.of(0, 10);
         Player player = samplePlayer();
+        PlayerDto playerDto = samplePlayerDto("Carlos Alcaraz", nationality);
         Page<Player> playerPage = new PageImpl<>(List.of(player));
-        String nationality = "ESP";
+        Page<PlayerDto> playerDtoPage = new PageImpl<>(List.of(playerDto));
 
         when(playerRepository.findByNationalityIgnoreCase(nationality, pageable)).thenReturn(playerPage);
         when(playerMapper.toDto(player)).thenReturn(samplePlayerDto());
 
         Page<PlayerDto> result = playerService.getPlayers(null, nationality, pageable);
 
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).nationality()).isEqualTo("ESP");
+        assertNotNull(result);
+        assertEquals(playerDtoPage, result);
         verify(playerRepository, times(1)).findByNationalityIgnoreCase(nationality, pageable);
         verify(playerRepository, never()).findAllPaged(any());
         verify(playerRepository, never()).findByFullNameContainingIgnoreCase(any(), any());
@@ -150,11 +161,13 @@ class PlayerServiceTest {
 
     @Test
     void shouldFilterPlayersByNameAndNationality() {
-        Pageable pageable = PageRequest.of(0, 10);
-        Player player = samplePlayer();
-        Page<Player> playerPage = new PageImpl<>(List.of(player));
         String name = "alcaraz";
         String nationality = "ESP";
+        Pageable pageable = PageRequest.of(0, 10);
+        Player player = samplePlayer();
+        PlayerDto playerDto = samplePlayerDto();
+        Page<Player> playerPage = new PageImpl<>(List.of(player));
+        Page<PlayerDto> playerDtoPage = new PageImpl<>(List.of(playerDto));
 
         when(playerRepository.findByFullNameContainingIgnoreCaseAndNationalityIgnoreCase(name, nationality, pageable))
                 .thenReturn(playerPage);
@@ -162,7 +175,8 @@ class PlayerServiceTest {
 
         Page<PlayerDto> result = playerService.getPlayers(name, nationality, pageable);
 
-        assertThat(result.getContent()).hasSize(1);
+        assertNotNull(result);
+        assertEquals(playerDtoPage, result);
         verify(playerRepository, times(1))
                 .findByFullNameContainingIgnoreCaseAndNationalityIgnoreCase(name, nationality, pageable);
         verify(playerRepository, never()).findAllPaged(any());
@@ -179,8 +193,7 @@ class PlayerServiceTest {
 
         Page<PlayerDto> result = playerService.getPlayers(name, null, pageable);
 
-        assertThat(result.getContent()).isEmpty();
-        assertThat(result.getTotalElements()).isZero();
+        assertEquals(Page.empty() ,result);
     }
 
     // getPlayerById
@@ -194,7 +207,8 @@ class PlayerServiceTest {
 
         PlayerDto result = playerService.getPlayerById(1L);
 
-        assertThat(result).isEqualTo(playerDto);
+        assertNotNull(result);
+        assertEquals(playerDto, result);
         verify(syncService, never()).syncPlayer(anyLong());
         verify(entityManager, never()).refresh(any());
     }
@@ -206,7 +220,7 @@ class PlayerServiceTest {
                 .externalId(100L)
                 .fullName("Carlos Alcaraz")
                 .nationality("ESP")
-                .lastSyncedAt(null) // nie zsynchronizowany
+                .lastSyncedAt(null)
                 .build();
         PlayerDto playerDto = samplePlayerDto();
 
@@ -215,7 +229,8 @@ class PlayerServiceTest {
 
         PlayerDto result = playerService.getPlayerById(1L);
 
-        assertThat(result).isEqualTo(playerDto);
+        assertNotNull(result);
+        assertEquals(playerDto, result);
         verify(syncService, times(1)).syncPlayer(100L);
         verify(entityManager, times(1)).refresh(player);
     }
@@ -248,9 +263,8 @@ class PlayerServiceTest {
 
         List<PlayerSeasonStatsDto> result = playerService.getPlayerStats(playerId);
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).season()).isEqualTo("2024");
-        assertThat(result.get(0).matchesWon()).isEqualTo(60);
+        assertNotNull(result);
+        assertEquals(statsDtos, result);
         verify(playerRepository, times(1)).existsById(playerId);
         verify(playerSeasonStatsRepository, times(1)).findByPlayerId(playerId);
     }
