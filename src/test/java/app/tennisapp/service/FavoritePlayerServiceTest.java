@@ -132,7 +132,7 @@ class FavoritePlayerServiceTest {
 
         assertNotNull(result);
         assertEquals(dto, result);
-        verify(favoritePlayerRepository).save(any(FavoritePlayer.class));
+        verify(favoritePlayerRepository, times(1)).save(any(FavoritePlayer.class));
     }
 
     @Test

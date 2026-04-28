@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -101,7 +100,6 @@ class SyncServiceTest {
     }
 
     // syncTournaments
-
     @Test
     void shouldSyncNewTournamentWhenNotExistsInDb() {
         ApiTournamentDto dto = buildApiTournamentDto("1000", "Wimbledon", "Atp Singles");
@@ -113,9 +111,9 @@ class SyncServiceTest {
 
         syncService.syncTournaments();
 
-        verify(apiTournamentMapper).toEntity(dto, 1000L, EventCategory.ATP_SINGLES);
+        verify(apiTournamentMapper, times(1)).toEntity(dto, 1000L, EventCategory.ATP_SINGLES);
         verify(apiTournamentMapper, never()).updateEntity(any(), any(), any());
-        verify(tournamentRepository).save(tournament);
+        verify(tournamentRepository, times(1)).save(tournament);
     }
 
     @Test
@@ -130,9 +128,9 @@ class SyncServiceTest {
 
         syncService.syncTournaments();
 
-        verify(apiTournamentMapper).updateEntity(existing, dto, EventCategory.ATP_SINGLES);
+        verify(apiTournamentMapper, times(1)).updateEntity(existing, dto, EventCategory.ATP_SINGLES);
         verify(apiTournamentMapper, never()).toEntity(any(), any(), any());
-        verify(tournamentRepository).save(updated);
+        verify(tournamentRepository, times(1)).save(updated);
     }
 
     @Test
@@ -158,7 +156,6 @@ class SyncServiceTest {
     }
 
     // syncPlayer
-
     @Test
     void shouldCreateNewPlayerWhenNotExistsInDb() {
         ApiPlayerDto dto = buildApiPlayerDto("100", "Carlos Alcaraz");
@@ -171,9 +168,9 @@ class SyncServiceTest {
 
         syncService.syncPlayer(100L);
 
-        verify(apiPlayerMapper).toEntity(dto, 100L);
+        verify(apiPlayerMapper, times(1)).toEntity(dto, 100L);
         verify(apiPlayerMapper, never()).updateEntity(any(), any());
-        verify(playerRepository).save(player);
+        verify(playerRepository, times(1)).save(player);
     }
 
     @Test
@@ -189,7 +186,7 @@ class SyncServiceTest {
 
         syncService.syncPlayer(100L);
 
-        verify(apiPlayerMapper).updateEntity(existing, dto);
+        verify(apiPlayerMapper, times(1)).updateEntity(existing, dto);
         verify(apiPlayerMapper, never()).toEntity(any(), any());
     }
 
@@ -210,7 +207,7 @@ class SyncServiceTest {
 
         syncService.syncPlayer(100L);
 
-        verify(playerSeasonStatsRepository).save(stats);
+        verify(playerSeasonStatsRepository, times(1)).save(stats);
     }
 
     @Test
@@ -251,10 +248,10 @@ class SyncServiceTest {
 
         syncService.syncStandings();
 
-        verify(rankingRepository).deleteByRankingType(RankingType.ATP);
-        verify(rankingRepository).deleteByRankingType(RankingType.WTA);
-        verify(apiRankingMapper).toPlayerSkeleton(dto, 100L);
-        verify(rankingRepository).save(entry);
+        verify(rankingRepository, times(1)).deleteByRankingType(RankingType.ATP);
+        verify(rankingRepository, times(1)).deleteByRankingType(RankingType.WTA);
+        verify(apiRankingMapper, times(1)).toPlayerSkeleton(dto, 100L);
+        verify(rankingRepository, times(1)).save(entry);
     }
 
     @Test
@@ -273,7 +270,7 @@ class SyncServiceTest {
         syncService.syncStandings();
 
         verify(apiRankingMapper, never()).toPlayerSkeleton(any(), any());
-        verify(rankingRepository).save(entry);
+        verify(rankingRepository, times(1)).save(entry);
     }
 
     @Test
@@ -298,7 +295,7 @@ class SyncServiceTest {
 
         syncService.syncLivescores();
 
-        verify(matchRepository).resetAllLiveMatches();
+        verify(matchRepository, times(1)).resetAllLiveMatches();
     }
 
     @Test
@@ -320,8 +317,8 @@ class SyncServiceTest {
 
         syncService.syncLivescores();
 
-        verify(matchRepository).resetAllLiveMatches();
-        verify(matchRepository).save(match);
+        verify(matchRepository, times(1)).resetAllLiveMatches();
+        verify(matchRepository, times(1)).save(match);
     }
 
     // syncFixtures
@@ -347,8 +344,8 @@ class SyncServiceTest {
 
         syncService.syncFixtures(start, end);
 
-        verify(apiTennisClient).fetchFixtures(start, end);
-        verify(matchRepository).save(match);
+        verify(apiTennisClient, times(1)).fetchFixtures(start, end);
+        verify(matchRepository, times(1)).save(match);
     }
 
     @Test
@@ -373,9 +370,9 @@ class SyncServiceTest {
 
         syncService.syncFixtures(start, end);
 
-        verify(apiMatchMapper).updateEntity(existing, dto, firstPlayer, secondPlayer, tournament);
+        verify(apiMatchMapper, times(1)).updateEntity(existing, dto, firstPlayer, secondPlayer, tournament);
         verify(apiMatchMapper, never()).toEntity(any(), any(), any(), any(), any());
-        verify(matchRepository).save(updated);
+        verify(matchRepository, times(1)).save(updated);
     }
 
     @Test

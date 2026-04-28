@@ -147,8 +147,8 @@ class MatchServiceTest {
 
         assertNotNull(result);
         assertEquals(dto, result);
-        verify(matchRepository).getMatchByIdWithPlayers(1L);
-        verify(matchMapper).toDto(match);
+        verify(matchRepository, times(1)).getMatchByIdWithPlayers(1L);
+        verify(matchMapper, times(1)).toDto(match);
     }
 
     @Test

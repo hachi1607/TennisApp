@@ -60,8 +60,8 @@ public class RankingServiceTest {
 
         assertNotNull(result);
         assertEquals(List.of(dto), result);
-        verify(rankingRepository).findByRankingTypeOrderByPositionAsc(RankingType.ATP);
-        verify(rankingMapper).toDto(List.of(entry));
+        verify(rankingRepository, times(1)).findByRankingTypeOrderByPositionAsc(RankingType.ATP);
+        verify(rankingMapper, times(1)).toDto(List.of(entry));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class RankingServiceTest {
 
         assertNotNull(result);
         assertEquals(List.of(dto), result);
-        verify(rankingRepository).findByRankingTypeOrderByPositionAsc(RankingType.WTA);
+        verify(rankingRepository, times(1)).findByRankingTypeOrderByPositionAsc(RankingType.WTA);
     }
 
     @Test
@@ -89,7 +89,7 @@ public class RankingServiceTest {
         List<RankingEntryDto> result = rankingService.getRankingByType(RankingType.ATP);
 
         assertThat(result).isEmpty();
-        verify(rankingRepository).findByRankingTypeOrderByPositionAsc(RankingType.ATP);
+        verify(rankingRepository, times(1)).findByRankingTypeOrderByPositionAsc(RankingType.ATP);
         verifyNoMoreInteractions(rankingMapper);
     }
 }

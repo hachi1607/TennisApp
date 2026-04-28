@@ -54,7 +54,7 @@ class TournamentServiceTest {
 
         assertNotNull(result);
         assertEquals(List.of(dto), result);
-        verify(tournamentRepository).findAll();
+        verify(tournamentRepository, times(1)).findAll();
         verify(tournamentRepository, never()).findByEventCategory(any());
         verify(tournamentRepository, never()).findByNameContainingIgnoreCase(any());
         verify(tournamentRepository, never()).findByEventCategoryAndNameContainingIgnoreCase(any(), any());
@@ -73,7 +73,7 @@ class TournamentServiceTest {
 
         assertNotNull(result);
         assertEquals(List.of(dto), result);
-        verify(tournamentRepository).findByEventCategory(EventCategory.ATP_SINGLES);
+        verify(tournamentRepository, times(1)).findByEventCategory(EventCategory.ATP_SINGLES);
         verify(tournamentRepository, never()).findAll();
         verify(tournamentRepository, never()).findByNameContainingIgnoreCase(any());
         verify(tournamentRepository, never()).findByEventCategoryAndNameContainingIgnoreCase(any(), any());
@@ -92,7 +92,7 @@ class TournamentServiceTest {
 
         assertNotNull(result);
         assertEquals(List.of(dto), result);
-        verify(tournamentRepository).findByNameContainingIgnoreCase("wimbledon");
+        verify(tournamentRepository, times(1)).findByNameContainingIgnoreCase("wimbledon");
         verify(tournamentRepository, never()).findAll();
         verify(tournamentRepository, never()).findByEventCategory(any());
         verify(tournamentRepository, never()).findByEventCategoryAndNameContainingIgnoreCase(any(), any());
@@ -112,7 +112,7 @@ class TournamentServiceTest {
 
         assertNotNull(result);
         assertEquals(List.of(dto), result);
-        verify(tournamentRepository).findByEventCategoryAndNameContainingIgnoreCase(
+        verify(tournamentRepository, times(1)).findByEventCategoryAndNameContainingIgnoreCase(
                 EventCategory.ATP_SINGLES, "wimbledon");
         verify(tournamentRepository, never()).findAll();
         verify(tournamentRepository, never()).findByEventCategory(any());
@@ -143,7 +143,7 @@ class TournamentServiceTest {
 
         assertNotNull(result);
         assertEquals(dto, result);
-        verify(tournamentRepository).findById(1L);
+        verify(tournamentRepository, times(1)).findById(1L);
         verify(tournamentMapper).toDto(tournament);
     }
 
