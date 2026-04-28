@@ -34,19 +34,14 @@ import static org.mockito.Mockito.*;
 class PlayerServiceTest {
     @Mock
     private PlayerRepository playerRepository;
-
     @Mock
     private PlayerSeasonStatsRepository playerSeasonStatsRepository;
-
     @Mock
     private PlayerMapper playerMapper;
-
     @Mock
     private SyncService syncService;
-
     @Mock
     private EntityManager entityManager;
-
     @InjectMocks
     private PlayerService playerService;
 

@@ -23,34 +23,24 @@ import static org.mockito.Mockito.*;
 class SyncServiceTest {
     @Mock
     private ApiTennisClient apiTennisClient;
-
     @Mock
     private TournamentRepository tournamentRepository;
-
     @Mock
     private PlayerRepository playerRepository;
-
     @Mock
     private PlayerSeasonStatsRepository playerSeasonStatsRepository;
-
     @Mock
     private MatchRepository matchRepository;
-
     @Mock
     private RankingRepository rankingRepository;
-
     @Mock
     private ApiTournamentMapper apiTournamentMapper;
-
     @Mock
     private ApiPlayerMapper apiPlayerMapper;
-
     @Mock
     private ApiRankingMapper apiRankingMapper;
-
     @Mock
     private ApiMatchMapper apiMatchMapper;
-
     @InjectMocks
     private SyncService syncService;
 

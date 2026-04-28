@@ -24,10 +24,8 @@ import static org.mockito.Mockito.*;
 public class RankingServiceTest {
     @Mock
     private RankingRepository rankingRepository;
-
     @Mock
     private RankingMapper rankingMapper;
-
     @InjectMocks
     private RankingService rankingService;
 
