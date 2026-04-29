@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface FavoritePlayerRepository extends JpaRepository<FavoritePlayer, FavoritePlayer.FavoritePlayerId> {
-    // FavoritePlayerRepository.java
     @Query("SELECT f FROM FavoritePlayer f JOIN FETCH f.user JOIN FETCH f.player WHERE f.user.id = :userId")
     List<FavoritePlayer> findByUserId(@Param("userId") Long userId);
 
