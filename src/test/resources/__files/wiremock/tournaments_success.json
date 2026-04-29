@@ -1,0 +1,11 @@
+{
+  "success": 1,
+  "result": [
+    {
+      "tournament_key": "1000",
+      "tournament_name": "Wimbledon",
+      "event_type_key": "1",
+      "event_type_type": "Atp Singles"
+    }
+  ]
+}

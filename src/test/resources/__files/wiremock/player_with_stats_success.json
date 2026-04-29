@@ -1,0 +1,28 @@
+{
+  "success": 1,
+  "result": [
+    {
+      "player_key": "100",
+      "player_name": "Novak Djokovic",
+      "player_country": "Serbia",
+      "player_bday": "22.05.1987",
+      "player_logo": null,
+      "stats": [
+        {
+          "season": "2024",
+          "type": "singles",
+          "rank": "1",
+          "titles": "7",
+          "matches_won": "55",
+          "matches_lost": "8",
+          "hard_won": "20",
+          "hard_lost": "3",
+          "clay_won": "18",
+          "clay_lost": "2",
+          "grass_won": "17",
+          "grass_lost": "3"
+        }
+      ]
+    }
+  ]
+}
