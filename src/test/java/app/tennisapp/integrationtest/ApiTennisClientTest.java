@@ -32,7 +32,7 @@ class ApiTennisClientTest {
     // fetchTournaments
     @Test
     void shouldFetchTournamentsSuccessfully() {
-        stubFor(get(urlPathEqualTo("/"))
+        stubFor(get(urlPathEqualTo("/tennis"))
                 .withQueryParam("method", equalTo("get_tournaments"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -49,7 +49,7 @@ class ApiTennisClientTest {
 
     @Test
     void shouldThrowWhenTournamentsResultIsEmpty() {
-        stubFor(get(urlPathEqualTo("/"))
+        stubFor(get(urlPathEqualTo("/tennis"))
                 .withQueryParam("method", equalTo("get_tournaments"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -62,7 +62,7 @@ class ApiTennisClientTest {
 
     @Test
     void shouldThrowWhenTournamentsApiReturns500() {
-        stubFor(get(urlPathEqualTo("/"))
+        stubFor(get(urlPathEqualTo("/tennis"))
                 .withQueryParam("method", equalTo("get_tournaments"))
                 .willReturn(aResponse().withStatus(500)));
 
@@ -73,7 +73,7 @@ class ApiTennisClientTest {
     // fetchFixtures
     @Test
     void shouldFetchFixturesSuccessfully() {
-        stubFor(get(urlPathEqualTo("/"))
+        stubFor(get(urlPathEqualTo("/tennis"))
                 .withQueryParam("method", equalTo("get_fixtures"))
                 .withQueryParam("date_start", equalTo("2025-07-01"))
                 .withQueryParam("date_stop", equalTo("2025-07-07"))
@@ -94,7 +94,7 @@ class ApiTennisClientTest {
 
     @Test
     void shouldThrowWhenFixturesResultIsEmpty() {
-        stubFor(get(urlPathEqualTo("/"))
+        stubFor(get(urlPathEqualTo("/tennis"))
                 .withQueryParam("method", equalTo("get_fixtures"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -109,7 +109,7 @@ class ApiTennisClientTest {
     // fetchLivescores
     @Test
     void shouldFetchLivescoresSuccessfully() {
-        stubFor(get(urlPathEqualTo("/"))
+        stubFor(get(urlPathEqualTo("/tennis"))
                 .withQueryParam("method", equalTo("get_livescore"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -125,7 +125,7 @@ class ApiTennisClientTest {
 
     @Test
     void shouldReturnEmptyListWhenNoLivescores() {
-        stubFor(get(urlPathEqualTo("/"))
+        stubFor(get(urlPathEqualTo("/tennis"))
                 .withQueryParam("method", equalTo("get_livescore"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -140,7 +140,7 @@ class ApiTennisClientTest {
     // fetchStandings
     @Test
     void shouldFetchStandingsSuccessfully() {
-        stubFor(get(urlPathEqualTo("/"))
+        stubFor(get(urlPathEqualTo("/tennis"))
                 .withQueryParam("method", equalTo("get_standings"))
                 .withQueryParam("event_type", equalTo("ATP"))
                 .willReturn(aResponse()
@@ -159,7 +159,7 @@ class ApiTennisClientTest {
 
     @Test
     void shouldThrowWhenStandingsResultIsEmpty() {
-        stubFor(get(urlPathEqualTo("/"))
+        stubFor(get(urlPathEqualTo("/tennis"))
                 .withQueryParam("method", equalTo("get_standings"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -173,7 +173,7 @@ class ApiTennisClientTest {
     // fetchPlayer
     @Test
     void shouldFetchPlayerSuccessfully() {
-        stubFor(get(urlPathEqualTo("/"))
+        stubFor(get(urlPathEqualTo("/tennis"))
                 .withQueryParam("method", equalTo("get_players"))
                 .withQueryParam("player_key", equalTo("100"))
                 .willReturn(aResponse()
@@ -192,7 +192,7 @@ class ApiTennisClientTest {
 
     @Test
     void shouldFetchPlayerWithStatsSuccessfully() {
-        stubFor(get(urlPathEqualTo("/"))
+        stubFor(get(urlPathEqualTo("/tennis"))
                 .withQueryParam("method", equalTo("get_players"))
                 .withQueryParam("player_key", equalTo("100"))
                 .willReturn(aResponse()
@@ -210,7 +210,7 @@ class ApiTennisClientTest {
 
     @Test
     void shouldThrowWhenPlayerNotFound() {
-        stubFor(get(urlPathEqualTo("/"))
+        stubFor(get(urlPathEqualTo("/tennis"))
                 .withQueryParam("method", equalTo("get_players"))
                 .withQueryParam("player_key", equalTo("999"))
                 .willReturn(aResponse()
@@ -224,7 +224,7 @@ class ApiTennisClientTest {
 
     @Test
     void shouldThrowWhenPlayerApiReturns500() {
-        stubFor(get(urlPathEqualTo("/"))
+        stubFor(get(urlPathEqualTo("/tennis"))
                 .withQueryParam("method", equalTo("get_players"))
                 .willReturn(aResponse().withStatus(500)));
 

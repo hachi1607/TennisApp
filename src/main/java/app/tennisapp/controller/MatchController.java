@@ -23,6 +23,7 @@ public class MatchController {
 
     @GetMapping
     public ResponseEntity<Page<MatchDto>> getMatches(
+            // TODO przerobić na mapę parametrów
             @RequestParam(required = false) Boolean live,
             @RequestParam(required = false) Long playerId,
             @RequestParam(required = false) Long firstPlayerId,
