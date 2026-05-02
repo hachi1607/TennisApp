@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,6 +32,8 @@ class UserServiceTest {
     private UserRepository userRepository;
     @Mock
     private UserMapper userMapper;
+    @Mock
+    private PasswordEncoder passwordEncoder;
     @InjectMocks
     private UserService userService;
 
@@ -38,7 +41,7 @@ class UserServiceTest {
         return User.builder()
                 .id(id)
                 .email("user@test.com")
-                .password("password123")
+                .password("$2a$10$hashedpassword")
                 .role(Role.USER)
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -117,7 +120,8 @@ class UserServiceTest {
         UserDto dto = buildUserDto(1L);
 
         when(userRepository.existsByEmail(command.email())).thenReturn(false);
-        when(userMapper.toEntity(command, command.password())).thenReturn(user);
+        when(passwordEncoder.encode("password123")).thenReturn("$2a$10$hashedpassword");
+        when(userMapper.toEntity(command, "$2a$10$hashedpassword")).thenReturn(user);
         when(userRepository.save(user)).thenReturn(user);
         when(userMapper.toDto(user)).thenReturn(dto);
 
@@ -125,6 +129,7 @@ class UserServiceTest {
 
         assertNotNull(result);
         assertEquals(dto, result);
+        verify(passwordEncoder, times(1)).encode("password123");
         verify(userRepository, times(1)).save(user);
     }
 
@@ -138,6 +143,7 @@ class UserServiceTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining(command.email());
 
+        verify(passwordEncoder, never()).encode(any());
         verify(userRepository, never()).save(any());
     }
 
@@ -146,11 +152,12 @@ class UserServiceTest {
     void shouldUpdateUserWhenValid() {
         UpdateUserCommand command = buildUpdateCommand();
         User user = buildUser(1L);
-        User updated = user.toBuilder().email("updated@test.com").password("newpassword123").build();
+        User updated = user.toBuilder().email("updated@test.com").password("$2a$10$newhashedpassword").build();
         UserDto dto = new UserDto(1L, "updated@test.com", Role.USER, LocalDateTime.now());
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(userRepository.existsByEmail("updated@test.com")).thenReturn(false);
+        when(passwordEncoder.encode("newpassword123")).thenReturn("$2a$10$newhashedpassword");
         when(userRepository.save(any(User.class))).thenReturn(updated);
         when(userMapper.toDto(updated)).thenReturn(dto);
 
@@ -158,6 +165,7 @@ class UserServiceTest {
 
         assertNotNull(result);
         assertEquals(dto, result);
+        verify(passwordEncoder, times(1)).encode("newpassword123");
         verify(userRepository, times(1)).save(any(User.class));
     }
 
@@ -165,10 +173,11 @@ class UserServiceTest {
     void shouldUpdateOnlyPasswordWhenEmailIsNull() {
         UpdateUserCommand command = new UpdateUserCommand(null, "newpassword123");
         User user = buildUser(1L);
-        User updated = user.toBuilder().password("newpassword123").build();
+        User updated = user.toBuilder().password("$2a$10$newhashedpassword").build();
         UserDto dto = buildUserDto(1L);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(passwordEncoder.encode("newpassword123")).thenReturn("$2a$10$newhashedpassword");
         when(userRepository.save(any(User.class))).thenReturn(updated);
         when(userMapper.toDto(updated)).thenReturn(dto);
 
@@ -176,7 +185,7 @@ class UserServiceTest {
 
         assertNotNull(result);
         verify(userRepository, never()).existsByEmail(any());
-        verify(userRepository, times(1)).save(any(User.class));
+        verify(passwordEncoder, times(1)).encode("newpassword123");
     }
 
     @Test
@@ -191,6 +200,7 @@ class UserServiceTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("updated@test.com");
 
+        verify(passwordEncoder, never()).encode(any());
         verify(userRepository, never()).save(any());
     }
 

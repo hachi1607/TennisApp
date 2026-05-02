@@ -37,7 +37,7 @@ public class TennisSyncScheduler {
             syncService.syncStandings();
             syncLogService.logSync(SyncEntityType.RANKING, SyncStatus.SUCCESS, null);
         } catch (Exception e) {
-            log.error("Scheduled standings sync failed", e); //TODO poprawić
+            log.error("Scheduled standings sync failed", e);
             syncLogService.logSync(SyncEntityType.RANKING, SyncStatus.FAILED, e.getMessage());
         }
     }
@@ -50,7 +50,7 @@ public class TennisSyncScheduler {
             syncService.syncFixtures(today.minusDays(1), today.plusDays(7));
             syncLogService.logSync(SyncEntityType.MATCH, SyncStatus.SUCCESS, null);
         } catch (Exception e) {
-            log.error("Scheduled fixtures sync failed", e); //TODO poprawić
+            log.error("Scheduled fixtures sync failed", e);
             syncLogService.logSync(SyncEntityType.MATCH, SyncStatus.FAILED, e.getMessage());
         }
     }
@@ -65,7 +65,7 @@ public class TennisSyncScheduler {
             syncService.syncLivescores();
             syncLogService.logSync(SyncEntityType.MATCH, SyncStatus.SUCCESS, null);
         } catch (Exception e) {
-            log.error("Scheduled fixtures sync failed", e); //TODO poprawić
+            log.error("Scheduled livescores sync failed", e);
             syncLogService.logSync(SyncEntityType.MATCH, SyncStatus.FAILED, e.getMessage());
         }
     }

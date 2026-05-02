@@ -9,6 +9,7 @@ import app.tennisapp.mapper.UserMapper;
 import app.tennisapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public UserDto register(RegisterCommand command) {
@@ -27,7 +29,7 @@ public class UserService {
         if (userRepository.existsByEmail(command.email())) {
             throw new IllegalStateException("Email already in use: " + command.email());
         }
-        User saved = userRepository.save(userMapper.toEntity(command, command.password()));
+        User saved = userRepository.save(userMapper.toEntity(command, passwordEncoder.encode(command.password())));
         log.info("User registered, id={}", saved.getId());
         return userMapper.toDto(saved);
     }
@@ -60,7 +62,7 @@ public class UserService {
             builder.email(command.email());
         }
         if (command.password() != null) {
-            builder.password(command.password());
+            builder.password(passwordEncoder.encode(command.password()));
         }
 
         return userMapper.toDto(userRepository.save(builder.build()));

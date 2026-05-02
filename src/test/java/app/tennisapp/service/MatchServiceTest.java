@@ -6,6 +6,7 @@ import app.tennisapp.entity.Player;
 import app.tennisapp.entity.Tournament;
 import app.tennisapp.exception.ResourceNotFoundException;
 import app.tennisapp.mapper.MatchMapper;
+import app.tennisapp.dto.MatchFilterParams;
 import app.tennisapp.repository.MatchRepository;
 import app.tennisapp.specificator.MatchSpecs;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -81,8 +83,8 @@ class MatchServiceTest {
         when(specExecutor.findAll(any(), eq(pageable))).thenReturn(matchPage);
         when(matchMapper.toDto(match)).thenReturn(dto);
 
-        Page<MatchDto> result = matchService.getMatches(
-                null, null, null, null, null, null, null, pageable);
+        MatchFilterParams params = new MatchFilterParams(null, null, null, null, null, null, null);
+        Page<MatchDto> result = matchService.getMatches(params, pageable);
 
         assertNotNull(result);
         assertEquals(matchDtoPage, result);
@@ -104,7 +106,8 @@ class MatchServiceTest {
         when(matchSpecs.dateBefore(dateTo)).thenReturn(EMPTY_SPEC);
         when(specExecutor.findAll(any(), eq(pageable))).thenReturn(Page.empty());
 
-        matchService.getMatches(true, 1L, 1L, 2L, 1L, dateFrom, dateTo, pageable);
+        MatchFilterParams params = new MatchFilterParams(true, 1L, 1L, 2L, 1L, dateFrom, dateTo);
+        matchService.getMatches(params, pageable);
 
         verify(matchSpecs).isLive(true);
         verify(matchSpecs).hasPlayer(1L);
@@ -128,8 +131,8 @@ class MatchServiceTest {
         when(matchSpecs.dateBefore(null)).thenReturn(EMPTY_SPEC);
         when(specExecutor.findAll(any(), eq(pageable))).thenReturn(Page.empty());
 
-        Page<MatchDto> result = matchService.getMatches(
-                null, null, null, null, null, null, null, pageable);
+        MatchFilterParams params = new MatchFilterParams(null, null, null, null, null, null, null);
+        Page<MatchDto> result = matchService.getMatches(params, pageable);
 
         assertThat(result.getContent()).isEmpty();
     }

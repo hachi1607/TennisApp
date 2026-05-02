@@ -27,10 +27,6 @@ public class NewsService {
     private final UserRepository userRepository;
     private final NewsMapper newsMapper;
 
-//    public List<NewsDto> getAllNews() {
-//        return newsMapper.toDto(newsRepository.findAllByOrderByPublishedAtDesc());
-//    }
-
     public Page<NewsDto> getAllNewsPaged(Pageable pageable) {
         log.debug("Fetching all news, page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
         return newsRepository.findAllPaged(pageable)

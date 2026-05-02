@@ -40,7 +40,7 @@ public class SyncService {
     private final RankingRepository rankingRepository;
 
     private final ApiTournamentMapper apiTournamentMapper;
-    private final ApiPlayerMapper apiPlayermapper;
+    private final ApiPlayerMapper apiPlayerMapper;
     private final ApiRankingMapper apiRankingMapper;
     private final ApiMatchMapper apiMatchMapper;
 
@@ -79,12 +79,12 @@ public class SyncService {
         Player player = playerRepository.findByExternalId(externalPlayerKey)
                 .map(existing -> {
                     log.info("Update entity player entity with name: {}", dto.playerName());
-                    return apiPlayermapper.updateEntity(existing, dto);
+                    return apiPlayerMapper.updateEntity(existing, dto);
                 })
                 .orElseGet(
                         () -> {
                             log.info("To entity player entity with name: {}", dto.playerName());
-                            return apiPlayermapper.toEntity(dto, externalPlayerKey);
+                            return apiPlayerMapper.toEntity(dto, externalPlayerKey);
                         }
                 );
 
@@ -100,8 +100,8 @@ public class SyncService {
                 Player finalPlayer = player;
                 PlayerSeasonStats stats = playerSeasonStatsRepository
                         .findByPlayerIdAndSeasonAndType(player.getId(), statDto.season(), statDto.type())
-                        .map(existing -> apiPlayermapper.updateStatsEntity(existing, statDto))
-                        .orElseGet(() -> apiPlayermapper.toStatsEntity(statDto, finalPlayer));
+                        .map(existing -> apiPlayerMapper.updateStatsEntity(existing, statDto))
+                        .orElseGet(() -> apiPlayerMapper.toStatsEntity(statDto, finalPlayer));
 
                 playerSeasonStatsRepository.save(stats);
             }
