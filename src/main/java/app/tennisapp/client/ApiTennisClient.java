@@ -2,19 +2,17 @@ package app.tennisapp.client;
 
 import app.tennisapp.client.response.*;
 import app.tennisapp.config.ApiTennisProperties;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.util.UriBuilder;
 
-import java.net.URI;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ApiTennisClient {
@@ -31,9 +29,9 @@ public class ApiTennisClient {
                         .body(ApiTournamentsResponse.class))
                 .orElseThrow(() -> new IllegalStateException("No response from API Tennis for tournaments"));
 
-        if (response.result() == null
-                || response.result().isEmpty()
-                || response.result().getFirst() == null) {
+        validateSuccess(response.success(), "tournaments");
+
+        if (response.result() == null || response.result().isEmpty()) {
             throw new IllegalStateException("No tournaments returned from API Tennis");
         }
         return response.result();
@@ -49,12 +47,12 @@ public class ApiTennisClient {
                                 .build())
                         .retrieve()
                         .body(ApiMatchesResponse.class))
-                .orElseThrow(() -> new IllegalStateException("No response from API Tennis for matches(fixtures)"));
+                .orElseThrow(() -> new IllegalStateException("No response from API Tennis for fixtures"));
 
-        if (response.result() == null
-                || response.result().isEmpty()
-                || response.result().getFirst() == null) {
-            throw new IllegalStateException("No matches returned from API Tennis");
+        validateSuccess(response.success(), "fixtures");
+
+        if (response.result() == null || response.result().isEmpty()) {
+            throw new IllegalStateException("No fixtures returned from API Tennis");
         }
         return response.result();
     }
@@ -67,7 +65,9 @@ public class ApiTennisClient {
                                 .build())
                         .retrieve()
                         .body(ApiMatchesResponse.class))
-                .orElseThrow(() -> new IllegalStateException("No response from API Tennis for livescores(fixtures)"));
+                .orElseThrow(() -> new IllegalStateException("No response from API Tennis for livescores"));
+
+        validateSuccess(response.success(), "livescores");
 
         if (response.result() == null || response.result().isEmpty()) {
             return Collections.emptyList();
@@ -84,11 +84,11 @@ public class ApiTennisClient {
                                 .build())
                         .retrieve()
                         .body(ApiStandingsResponse.class))
-                .orElseThrow(() -> new IllegalStateException("No response from API Tennis for livescores"));
+                .orElseThrow(() -> new IllegalStateException("No response from API Tennis for standings"));
 
-        if (response.result() == null
-                || response.result().isEmpty()
-                || response.result().getFirst() == null) {
+        validateSuccess(response.success(), "standings");
+
+        if (response.result() == null || response.result().isEmpty()) {
             throw new IllegalStateException("No standings returned from API Tennis");
         }
         return response.result();
@@ -105,11 +105,23 @@ public class ApiTennisClient {
                         .body(ApiPlayersResponse.class))
                 .orElseThrow(() -> new IllegalStateException("No response from API Tennis for player " + playerKey));
 
-        if (response.result() == null
-                || response.result().isEmpty()
-                || response.result().getFirst() == null) {
-            throw new IllegalStateException("No player returned from API Tennis");
+        validateSuccess(response.success(), "player " + playerKey);
+
+        if (response.result() == null || response.result().isEmpty()) {
+            throw new IllegalStateException("No player returned from API Tennis for key " + playerKey);
         }
-        return response.result().getFirst();
+
+        ApiPlayerDto dto = response.result().getFirst();
+        if (dto.playerKey() == null) {
+            throw new IllegalStateException("External API returned invalid player data");
+        }
+        return dto;
+    }
+
+    private void validateSuccess(Integer success, String context) {
+        if (success == null || success != 1) {
+            log.error("API Tennis returned success={} for {}", success, context);
+            throw new IllegalStateException("External API error for " + context);
+        }
     }
 }

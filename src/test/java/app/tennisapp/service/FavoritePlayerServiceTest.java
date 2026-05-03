@@ -39,10 +39,13 @@ class FavoritePlayerServiceTest {
     @InjectMocks
     private FavoritePlayerService favoritePlayerService;
 
+    private static final String EMAIL = "user@test.com";
+    private static final String UNKNOWN_EMAIL = "unknown@test.com";
+
     private User buildUser(Long id) {
         return User.builder()
                 .id(id)
-                .email("user@test.com")
+                .email(EMAIL)
                 .build();
     }
 
@@ -67,68 +70,62 @@ class FavoritePlayerServiceTest {
     // getUserFavorites
     @Test
     void shouldGetUserFavoritesWhenUserExistsAndReturnList() {
-        Long userId = 1L;
-        User user = buildUser(userId);
+        User user = buildUser(1L);
         Player player = buildPlayer(10L);
         FavoritePlayer favorite = buildFavorite(user, player);
-        FavoritePlayerDto dto = buildFavoriteDto(userId, 10L);
+        FavoritePlayerDto dto = buildFavoriteDto(1L, 10L);
 
-        when(userRepository.existsById(userId)).thenReturn(true);
-        when(favoritePlayerRepository.findByUserId(userId)).thenReturn(List.of(favorite));
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
+        when(favoritePlayerRepository.findByUserId(1L)).thenReturn(List.of(favorite));
         when(favoritePlayerMapper.toDto(List.of(favorite))).thenReturn(List.of(dto));
 
-        List<FavoritePlayerDto> result = favoritePlayerService.getUserFavorites(userId);
+        List<FavoritePlayerDto> result = favoritePlayerService.getUserFavorites(EMAIL);
 
         assertNotNull(result);
         assertEquals(List.of(dto), result);
-        verify(favoritePlayerRepository, times(1)).findByUserId(userId);
+        verify(favoritePlayerRepository, times(1)).findByUserId(1L);
     }
 
     @Test
-    void shouldThrowResourceNotFoundExceptionWhenIdNotExist() {
-        Long givenId = 99L;
+    void shouldThrowResourceNotFoundExceptionWhenUserNotFound() {
+        when(userRepository.findByEmail(UNKNOWN_EMAIL)).thenReturn(Optional.empty());
 
-        when(userRepository.existsById(givenId)).thenReturn(false);
-
-        assertThatThrownBy(() -> favoritePlayerService.getUserFavorites(99L))
+        assertThatThrownBy(() -> favoritePlayerService.getUserFavorites(UNKNOWN_EMAIL))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("99");
+                .hasMessageContaining(UNKNOWN_EMAIL);
 
         verifyNoInteractions(favoritePlayerRepository);
-        verify(userRepository, times(1)).existsById(99L);
     }
 
     @Test
-    void shouldReturnEmptyListWhenUserHasNoFavorite() {
-        when(userRepository.existsById(1L)).thenReturn(true);
+    void shouldReturnEmptyListWhenUserHasNoFavorites() {
+        User user = buildUser(1L);
+
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
         when(favoritePlayerRepository.findByUserId(1L)).thenReturn(List.of());
         when(favoritePlayerMapper.toDto(List.of())).thenReturn(List.of());
 
-        List<FavoritePlayerDto> result = favoritePlayerService.getUserFavorites(1L);
+        List<FavoritePlayerDto> result = favoritePlayerService.getUserFavorites(EMAIL);
 
         assertThat(result).isEmpty();
-        assertNotNull(result);
-        assertEquals(List.of(), result);
-        verify(userRepository, times(1)).existsById(1L);
+        verify(userRepository, times(1)).findByEmail(EMAIL);
     }
 
     // addFavorite
     @Test
     void shouldAddFavoriteWhenValid() {
-        Long userId = 1L;
-        Long playerId = 10L;
-        User user = buildUser(userId);
-        Player player = buildPlayer(playerId);
+        User user = buildUser(1L);
+        Player player = buildPlayer(10L);
         FavoritePlayer favorite = buildFavorite(user, player);
-        FavoritePlayerDto dto = buildFavoriteDto(userId, playerId);
+        FavoritePlayerDto dto = buildFavoriteDto(1L, 10L);
 
-        when(favoritePlayerRepository.existsByUserIdAndPlayerId(userId, playerId)).thenReturn(false);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
+        when(favoritePlayerRepository.existsByUserIdAndPlayerId(1L, 10L)).thenReturn(false);
+        when(playerRepository.findById(10L)).thenReturn(Optional.of(player));
         when(favoritePlayerRepository.save(any(FavoritePlayer.class))).thenReturn(favorite);
         when(favoritePlayerMapper.toDto(favorite)).thenReturn(dto);
 
-        FavoritePlayerDto result = favoritePlayerService.addFavorite(userId, playerId);
+        FavoritePlayerDto result = favoritePlayerService.addFavorite(EMAIL, 10L);
 
         assertNotNull(result);
         assertEquals(dto, result);
@@ -137,36 +134,38 @@ class FavoritePlayerServiceTest {
 
     @Test
     void shouldThrowIllegalStateExceptionWhenAlreadyExists() {
+        User user = buildUser(1L);
+
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
         when(favoritePlayerRepository.existsByUserIdAndPlayerId(1L, 10L)).thenReturn(true);
 
-        assertThatThrownBy(() -> favoritePlayerService.addFavorite(1L, 10L))
+        assertThatThrownBy(() -> favoritePlayerService.addFavorite(EMAIL, 10L))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("already in favorites");
 
         verify(favoritePlayerRepository, never()).save(any());
-        verify(favoritePlayerRepository, times(1)).existsByUserIdAndPlayerId(1L, 10L);
     }
 
     @Test
-    void shouldThrowResourceNotFoundExceptionWhenUserNotFound() {
-        when(favoritePlayerRepository.existsByUserIdAndPlayerId(99L, 10L)).thenReturn(false);
-        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+    void shouldThrowResourceNotFoundExceptionWhenUserNotFoundOnAdd() {
+        when(userRepository.findByEmail(UNKNOWN_EMAIL)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> favoritePlayerService.addFavorite(99L, 10L))
+        assertThatThrownBy(() -> favoritePlayerService.addFavorite(UNKNOWN_EMAIL, 10L))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("99");
+                .hasMessageContaining(UNKNOWN_EMAIL);
 
         verify(favoritePlayerRepository, never()).save(any());
     }
 
     @Test
     void shouldThrowResourceNotFoundExceptionWhenPlayerNotFound() {
-        Long userId = 1L;
-        when(favoritePlayerRepository.existsByUserIdAndPlayerId(userId, 99L)).thenReturn(false);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(buildUser(userId)));
+        User user = buildUser(1L);
+
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
+        when(favoritePlayerRepository.existsByUserIdAndPlayerId(1L, 99L)).thenReturn(false);
         when(playerRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> favoritePlayerService.addFavorite(userId, 99L))
+        assertThatThrownBy(() -> favoritePlayerService.addFavorite(EMAIL, 99L))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("99");
 
@@ -176,20 +175,25 @@ class FavoritePlayerServiceTest {
     // removeFavorite
     @Test
     void shouldRemoveFavoriteWhenExists() {
+        User user = buildUser(1L);
+
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
         when(favoritePlayerRepository.existsByUserIdAndPlayerId(1L, 10L)).thenReturn(true);
 
-        favoritePlayerService.removeFavorite(1L, 10L);
+        favoritePlayerService.removeFavorite(EMAIL, 10L);
 
         verify(favoritePlayerRepository).deleteByUserIdAndPlayerId(1L, 10L);
     }
 
     @Test
     void shouldThrowResourceNotFoundExceptionWhenNotExistsByDelete() {
+        User user = buildUser(1L);
+
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
         when(favoritePlayerRepository.existsByUserIdAndPlayerId(1L, 99L)).thenReturn(false);
 
-        assertThatThrownBy(() -> favoritePlayerService.removeFavorite(1L, 99L))
+        assertThatThrownBy(() -> favoritePlayerService.removeFavorite(EMAIL, 99L))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("1")
                 .hasMessageContaining("99");
 
         verify(favoritePlayerRepository, never()).deleteByUserIdAndPlayerId(any(), any());

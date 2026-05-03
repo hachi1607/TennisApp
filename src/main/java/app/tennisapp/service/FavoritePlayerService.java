@@ -25,23 +25,22 @@ public class FavoritePlayerService {
     private final PlayerRepository playerRepository;
     private final FavoritePlayerMapper favoritePlayerMapper;
 
-    public List<FavoritePlayerDto> getUserFavorites(Long userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new ResourceNotFoundException("User not found: " + userId);
-        }
-        return favoritePlayerMapper.toDto(favoritePlayerRepository.findByUserId(userId));
+    @Transactional(readOnly = true)
+    public List<FavoritePlayerDto> getUserFavorites(String email) {
+        User user = getUserByEmail(email);
+        return favoritePlayerMapper.toDto(favoritePlayerRepository.findByUserId(user.getId()));
     }
 
     @Transactional
-    public FavoritePlayerDto addFavorite(Long userId, Long playerId) {
-        log.info("Adding favorite, userId={}, playerId={}", userId, playerId);
-        if (favoritePlayerRepository.existsByUserIdAndPlayerId(userId, playerId)) {
-            log.warn("Player id={} already in favorites for user id={}", playerId, userId);
+    public FavoritePlayerDto addFavorite(String email, Long playerId) {
+        User user = getUserByEmail(email);
+        log.info("Adding favorite, userId={}, playerId={}", user.getId(), playerId);
+
+        if (favoritePlayerRepository.existsByUserIdAndPlayerId(user.getId(), playerId)) {
+            log.warn("Player id={} already in favorites for user id={}", playerId, user.getId());
             throw new IllegalStateException("Player already in favorites");
         }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
         Player player = playerRepository.findById(playerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Player not found: " + playerId));
 
@@ -50,18 +49,26 @@ public class FavoritePlayerService {
                 .player(player)
                 .build();
 
-        log.info("Favorite added, userId={}, playerId={}", userId, playerId);
+        log.info("Favorite added, userId={}, playerId={}", user.getId(), playerId);
         return favoritePlayerMapper.toDto(favoritePlayerRepository.save(favorite));
     }
 
     @Transactional
-    public void removeFavorite(Long userId, Long playerId) {
-        log.info("Removing favorite, userId={}, playerId={}", userId, playerId);
-        if (!favoritePlayerRepository.existsByUserIdAndPlayerId(userId, playerId)) {
-            log.warn("Favorite not found, userId={}, playerId={}", userId, playerId);
-            throw new ResourceNotFoundException("Favorite not found for user " + userId + " and player " + playerId);
+    public void removeFavorite(String email, Long playerId) {
+        User user = getUserByEmail(email);
+        log.info("Removing favorite, userId={}, playerId={}", user.getId(), playerId);
+
+        if (!favoritePlayerRepository.existsByUserIdAndPlayerId(user.getId(), playerId)) {
+            log.warn("Favorite not found, userId={}, playerId={}", user.getId(), playerId);
+            throw new ResourceNotFoundException("Favorite not found for user " + user.getId() + " and player " + playerId);
         }
-        favoritePlayerRepository.deleteByUserIdAndPlayerId(userId, playerId);
-        log.info("Favorite removed, userId={}, playerId={}", userId, playerId);
+
+        favoritePlayerRepository.deleteByUserIdAndPlayerId(user.getId(), playerId);
+        log.info("Favorite removed, userId={}, playerId={}", user.getId(), playerId);
+    }
+
+    private User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
     }
 }

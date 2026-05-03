@@ -6,7 +6,7 @@ import app.tennisapp.entity.Player;
 import app.tennisapp.entity.Tournament;
 import app.tennisapp.exception.ResourceNotFoundException;
 import app.tennisapp.mapper.MatchMapper;
-import app.tennisapp.dto.MatchFilterParams;
+import app.tennisapp.params.MatchFilterParams;
 import app.tennisapp.repository.MatchRepository;
 import app.tennisapp.specificator.MatchSpecs;
 import org.junit.jupiter.api.Test;

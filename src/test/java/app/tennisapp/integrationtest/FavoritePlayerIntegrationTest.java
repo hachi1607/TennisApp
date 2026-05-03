@@ -11,6 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -67,11 +68,11 @@ class FavoritePlayerIntegrationTest extends BaseIntegrationTest {
 
     // getUserFavorites
     @Test
+    @WithMockUser(username = "user@test.com", roles = "USER")
     void shouldReturnFavoritesListForUser() throws Exception {
         saveFavorite(savedUser, savedPlayer);
 
-        mockMvc.perform(get("/api/v1/favorites")
-                        .param("userId", savedUser.getId().toString()))
+        mockMvc.perform(get("/api/v1/favorites"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].userId", is(savedUser.getId().intValue())))
@@ -80,25 +81,25 @@ class FavoritePlayerIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "user@test.com", roles = "USER")
     void shouldReturnEmptyListWhenUserHasNoFavorites() throws Exception {
-        mockMvc.perform(get("/api/v1/favorites")
-                        .param("userId", savedUser.getId().toString()))
+        mockMvc.perform(get("/api/v1/favorites"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
 
     @Test
+    @WithMockUser(username = "nonexistent@test.com", roles = "USER")
     void shouldReturn404WhenUserNotFoundOnGetFavorites() throws Exception {
-        mockMvc.perform(get("/api/v1/favorites")
-                        .param("userId", "999"))
+        mockMvc.perform(get("/api/v1/favorites"))
                 .andExpect(status().isNotFound());
     }
 
     // addFavorite
     @Test
+    @WithMockUser(username = "user@test.com", roles = "USER")
     void shouldAddFavoriteWhenValid() throws Exception {
         mockMvc.perform(post("/api/v1/favorites")
-                        .param("userId", savedUser.getId().toString())
                         .param("playerId", savedPlayer.getId().toString()))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.userId", is(savedUser.getId().intValue())))
@@ -108,46 +109,46 @@ class FavoritePlayerIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "user@test.com", roles = "USER")
     void shouldReturn400WhenFavoriteAlreadyExists() throws Exception {
         saveFavorite(savedUser, savedPlayer);
 
         mockMvc.perform(post("/api/v1/favorites")
-                        .param("userId", savedUser.getId().toString())
                         .param("playerId", savedPlayer.getId().toString()))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
+    @WithMockUser(username = "nonexistent@test.com", roles = "USER")
     void shouldReturn404WhenUserNotFoundOnAddFavorite() throws Exception {
         mockMvc.perform(post("/api/v1/favorites")
-                        .param("userId", "999")
                         .param("playerId", savedPlayer.getId().toString()))
                 .andExpect(status().isNotFound());
     }
 
     @Test
+    @WithMockUser(username = "user@test.com", roles = "USER")
     void shouldReturn404WhenPlayerNotFoundOnAddFavorite() throws Exception {
         mockMvc.perform(post("/api/v1/favorites")
-                        .param("userId", savedUser.getId().toString())
                         .param("playerId", "999"))
                 .andExpect(status().isNotFound());
     }
 
     // removeFavorite
     @Test
+    @WithMockUser(username = "user@test.com", roles = "USER")
     void shouldRemoveFavoriteWhenExists() throws Exception {
         saveFavorite(savedUser, savedPlayer);
 
         mockMvc.perform(delete("/api/v1/favorites")
-                        .param("userId", savedUser.getId().toString())
                         .param("playerId", savedPlayer.getId().toString()))
                 .andExpect(status().isNoContent());
     }
 
     @Test
+    @WithMockUser(username = "user@test.com", roles = "USER")
     void shouldReturn404WhenFavoriteNotFoundOnRemove() throws Exception {
         mockMvc.perform(delete("/api/v1/favorites")
-                        .param("userId", savedUser.getId().toString())
                         .param("playerId", "999"))
                 .andExpect(status().isNotFound());
     }

@@ -4,7 +4,7 @@ import app.tennisapp.dto.MatchDto;
 import app.tennisapp.entity.Match;
 import app.tennisapp.exception.ResourceNotFoundException;
 import app.tennisapp.mapper.MatchMapper;
-import app.tennisapp.dto.MatchFilterParams;
+import app.tennisapp.params.MatchFilterParams;
 import app.tennisapp.repository.MatchRepository;
 import app.tennisapp.specificator.MatchSpecs;
 import lombok.RequiredArgsConstructor;

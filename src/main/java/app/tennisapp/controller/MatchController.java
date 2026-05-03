@@ -1,7 +1,7 @@
 package app.tennisapp.controller;
 
 import app.tennisapp.dto.MatchDto;
-import app.tennisapp.dto.MatchFilterParams;
+import app.tennisapp.params.MatchFilterParams;
 import app.tennisapp.service.MatchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

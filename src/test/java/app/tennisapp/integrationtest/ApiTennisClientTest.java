@@ -26,7 +26,7 @@ class ApiTennisClientTest {
 
     @DynamicPropertySource
     static void configure(DynamicPropertyRegistry registry) {
-        registry.add("api-tennis.url", () -> "http://localhost:8081");
+        registry.add("api-tennis.url", () -> "http://localhost:8081/tennis");
     }
 
     // fetchTournaments

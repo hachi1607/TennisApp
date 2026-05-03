@@ -1,4 +1,4 @@
-package app.tennisapp.dto;
+package app.tennisapp.params;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
