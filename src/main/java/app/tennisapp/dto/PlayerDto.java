@@ -8,7 +8,6 @@ public record PlayerDto(
         String fullName,
         String nationality,
         LocalDate birthDate,
-        String bio,
         String imageUrl
 ) {
 }

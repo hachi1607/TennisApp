@@ -25,6 +25,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -68,25 +70,26 @@ class NewsServiceTest {
 
     // getAllNewsPaged
     @Test
-    void getAllNewsPaged_returnsPageOfNews() {
+    void shouldReturnPageOfNewsPaged() {
         Pageable pageable = PageRequest.of(0, 10);
         User author = buildUser();
         News news = buildNews(author);
         NewsDto dto = buildNewsDto();
         Page<News> newsPage = new PageImpl<>(List.of(news), pageable, 1);
+        Page<NewsDto> newsDtoPage = new PageImpl<>(List.of(dto), pageable, 1);
 
         when(newsRepository.findAllPaged(pageable)).thenReturn(newsPage);
         when(newsMapper.toDto(news)).thenReturn(dto);
 
         Page<NewsDto> result = newsService.getAllNewsPaged(pageable);
 
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getTotalElements()).isEqualTo(1);
-        verify(newsRepository).findAllPaged(pageable);
+        assertNotNull(result);
+        assertEquals(newsDtoPage, result);
+        verify(newsRepository, times(1)).findAllPaged(pageable);
     }
 
     @Test
-    void getAllNewsPaged_whenEmpty_returnsEmptyPage() {
+    void shouldReturnEmptyPage() {
         Pageable pageable = PageRequest.of(0, 10);
         when(newsRepository.findAllPaged(pageable)).thenReturn(Page.empty());
 
@@ -97,7 +100,7 @@ class NewsServiceTest {
 
     // getNewsById
     @Test
-    void getNewsById_whenExists_returnsDto() {
+    void shouldReturnDto() {
         User author = buildUser();
         News news = buildNews(author);
         NewsDto dto = buildNewsDto();
@@ -107,13 +110,13 @@ class NewsServiceTest {
 
         NewsDto result = newsService.getNewsById(1L);
 
-        assertThat(result.id()).isEqualTo(1L);
-        assertThat(result.title()).isEqualTo("Test Title");
-        verify(newsRepository).findByIdWithAuthor(1L);
+        assertNotNull(result);
+        assertEquals(dto, result);
+        verify(newsRepository, times(1)).findByIdWithAuthor(1L);
     }
 
     @Test
-    void getNewsById_whenNotExists_throwsResourceNotFoundException() {
+    void shouldThrowResourceNotFoundException() {
         when(newsRepository.findByIdWithAuthor(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> newsService.getNewsById(99L))
@@ -125,7 +128,7 @@ class NewsServiceTest {
 
     // searchNews
     @Test
-    void searchNews_returnsMatchingNews() {
+    void shouldReturnMatchingNews() {
         User author = buildUser();
         News news = buildNews(author);
         NewsDto dto = buildNewsDto();
@@ -135,12 +138,13 @@ class NewsServiceTest {
 
         List<NewsDto> result = newsService.searchNews("wimbledon");
 
-        assertThat(result).hasSize(1);
-        verify(newsRepository).searchByKeyword("wimbledon");
+        assertNotNull(result);
+        assertEquals(List.of(dto), result);
+        verify(newsRepository, times(1)).searchByKeyword("wimbledon");
     }
 
     @Test
-    void searchNews_whenNoResults_returnsEmptyList() {
+    void shouldReturnEmptyList() {
         when(newsRepository.searchByKeyword("xyz")).thenReturn(List.of());
         when(newsMapper.toDto(List.of())).thenReturn(List.of());
 
@@ -151,7 +155,7 @@ class NewsServiceTest {
 
     // createNews
     @Test
-    void createNews_whenAuthorExists_returnsCreatedDto() {
+    void shouldReturnCreatedNewsDto() {
         User author = buildUser();
         CreateNewsCommand command = buildCreateCommand();
         News news = buildNews(author);
@@ -164,13 +168,14 @@ class NewsServiceTest {
 
         NewsDto result = newsService.createNews(1L, command);
 
-        assertThat(result.title()).isEqualTo("Test Title");
-        verify(userRepository).findById(1L);
-        verify(newsRepository).save(news);
+        assertNotNull(result);
+        assertEquals(dto, result);
+        verify(userRepository, times(1)).findById(1L);
+        verify(newsRepository, times(1)).save(news);
     }
 
     @Test
-    void createNews_whenAuthorNotFound_throwsResourceNotFoundException() {
+    void shouldThrowResourceNotFoundExceptionWhenAuthorNotFound() {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> newsService.createNews(99L, buildCreateCommand()))
@@ -182,7 +187,7 @@ class NewsServiceTest {
 
     // updateNews
     @Test
-    void updateNews_whenExists_returnsUpdatedDto() {
+    void shouldReturnUpdatedDto() {
         User author = buildUser();
         News existing = buildNews(author);
         UpdateNewsCommand command = buildUpdateCommand();
@@ -200,13 +205,13 @@ class NewsServiceTest {
 
         NewsDto result = newsService.updateNews(1L, command);
 
-        assertThat(result.title()).isEqualTo("Updated Title");
-        assertThat(result.content()).isEqualTo("Updated Content");
-        verify(newsRepository).save(any(News.class));
+        assertNotNull(result);
+        assertEquals(dto, result);
+        verify(newsRepository, times(1)).save(any(News.class));
     }
 
     @Test
-    void updateNews_whenNotExists_throwsResourceNotFoundException() {
+    void shouldThrowResourceNotFoundExceptionWhenNotExists() {
         when(newsRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> newsService.updateNews(99L, buildUpdateCommand()))
@@ -218,7 +223,7 @@ class NewsServiceTest {
 
     // patchNews
     @Test
-    void patchNews_whenOnlyTitleProvided_updatesOnlyTitle() {
+    void shouldUpdateOnlyTitle() {
         User author = buildUser();
         News existing = buildNews(author);
         UpdateNewsCommand command = new UpdateNewsCommand("New Title", null, null);
@@ -232,13 +237,13 @@ class NewsServiceTest {
 
         NewsDto result = newsService.patchNews(1L, command);
 
-        assertThat(result.title()).isEqualTo("New Title");
-        assertThat(result.content()).isEqualTo("Test Content");
-        verify(newsRepository).save(any(News.class));
+        assertNotNull(result);
+        assertEquals(dto, result);
+        verify(newsRepository, times(1)).save(any(News.class));
     }
 
     @Test
-    void patchNews_whenAllFieldsProvided_updatesAllFields() {
+    void shouldUpdateAllFieldsWhenAllFieldsProvided() {
         User author = buildUser();
         News existing = buildNews(author);
         UpdateNewsCommand command = buildUpdateCommand();
@@ -256,12 +261,12 @@ class NewsServiceTest {
 
         NewsDto result = newsService.patchNews(1L, command);
 
-        assertThat(result.title()).isEqualTo("Updated Title");
-        assertThat(result.content()).isEqualTo("Updated Content");
+        assertNotNull(result);
+        assertEquals(dto, result);
     }
 
     @Test
-    void patchNews_whenNotExists_throwsResourceNotFoundException() {
+    void shouldThrowResourceNotFoundExceptionWhenNewsToPatchNotExists() {
         when(newsRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> newsService.patchNews(99L, buildUpdateCommand()))
@@ -273,16 +278,16 @@ class NewsServiceTest {
 
     // deleteNewsById
     @Test
-    void deleteNewsById_whenExists_deletesSuccessfully() {
+    void shouldDeleteSuccessfully() {
         when(newsRepository.existsById(1L)).thenReturn(true);
 
         newsService.deleteNewsById(1L);
 
-        verify(newsRepository).deleteById(1L);
+        verify(newsRepository, times(1)).deleteById(1L);
     }
 
     @Test
-    void deleteNewsById_whenNotExists_throwsResourceNotFoundException() {
+    void shouldThrowResourceNotFoundExceptionWhenNewsToDeleteNotExists() {
         when(newsRepository.existsById(99L)).thenReturn(false);
 
         assertThatThrownBy(() -> newsService.deleteNewsById(99L))

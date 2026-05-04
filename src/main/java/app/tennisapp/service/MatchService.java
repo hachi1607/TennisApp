@@ -4,6 +4,7 @@ import app.tennisapp.dto.MatchDto;
 import app.tennisapp.entity.Match;
 import app.tennisapp.exception.ResourceNotFoundException;
 import app.tennisapp.mapper.MatchMapper;
+import app.tennisapp.params.MatchFilterParams;
 import app.tennisapp.repository.MatchRepository;
 import app.tennisapp.specificator.MatchSpecs;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.util.List;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -24,24 +22,17 @@ public class MatchService {
     private final MatchMapper matchMapper;
     private final MatchSpecs matchSpecs;
 
-    public Page<MatchDto> getMatches(
-            Boolean live,
-            Long playerId,
-            Long firstPlayerId, Long secondPlayerId,
-            Long tournamentId,
-            LocalDate dateFrom, LocalDate dateTo,
-            Pageable pageable) {
-
+    public Page<MatchDto> getMatches(MatchFilterParams params, Pageable pageable) {
         log.debug("Fetching matches with filters: live={}, playerId={}, tournamentId={}, dateFrom={}, dateTo={}",
-                live, playerId, tournamentId, dateFrom, dateTo);
+                params.live(), params.playerId(), params.tournamentId(), params.dateFrom(), params.dateTo());
 
         Specification<Match> spec = Specification.allOf(
-                matchSpecs.isLive(live),
-                matchSpecs.hasPlayer(playerId),
-                matchSpecs.headToHead(firstPlayerId, secondPlayerId),
-                matchSpecs.hasTournament(tournamentId),
-                matchSpecs.dateAfter(dateFrom),
-                matchSpecs.dateBefore(dateTo)
+                matchSpecs.isLive(params.live()),
+                matchSpecs.hasPlayer(params.playerId()),
+                matchSpecs.headToHead(params.firstPlayerId(), params.secondPlayerId()),
+                matchSpecs.hasTournament(params.tournamentId()),
+                matchSpecs.dateAfter(params.dateFrom()),
+                matchSpecs.dateBefore(params.dateTo())
         );
 
         return matchRepository.findAll(spec, pageable)

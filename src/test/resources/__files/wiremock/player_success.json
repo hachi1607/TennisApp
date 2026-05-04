@@ -1,0 +1,13 @@
+{
+  "success": 1,
+  "result": [
+    {
+      "player_key": "100",
+      "player_name": "Novak Djokovic",
+      "player_country": "Serbia",
+      "player_bday": "22.05.1987",
+      "player_logo": "https://example.com/djokovic.jpg",
+      "stats": []
+    }
+  ]
+}

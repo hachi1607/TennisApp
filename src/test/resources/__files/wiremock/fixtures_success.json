@@ -1,0 +1,22 @@
+{
+  "success": 1,
+  "result": [
+    {
+      "event_key": "9999",
+      "event_date": "2025-07-01",
+      "event_time": "14:00",
+      "event_first_player": "Novak Djokovic",
+      "first_player_key": "1",
+      "event_second_player": "Rafael Nadal",
+      "second_player_key": "2",
+      "event_final_result": "2-1",
+      "event_status": "Finished",
+      "tournament_name": "Wimbledon",
+      "tournament_key": "1000",
+      "tournament_season": "2025",
+      "event_live": "0",
+      "event_qualification": "False",
+      "event_type_type": "Atp Singles"
+    }
+  ]
+}

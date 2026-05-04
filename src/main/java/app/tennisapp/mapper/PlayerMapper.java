@@ -17,7 +17,6 @@ public class PlayerMapper {
                 player.getFullName(),
                 player.getNationality(),
                 player.getBirthDate(),
-                player.getBio(),
                 player.getImageUrl()
         );
     }

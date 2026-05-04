@@ -6,6 +6,7 @@ import app.tennisapp.entity.Player;
 import app.tennisapp.entity.Tournament;
 import app.tennisapp.exception.ResourceNotFoundException;
 import app.tennisapp.mapper.MatchMapper;
+import app.tennisapp.params.MatchFilterParams;
 import app.tennisapp.repository.MatchRepository;
 import app.tennisapp.specificator.MatchSpecs;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,10 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -62,12 +66,13 @@ class MatchServiceTest {
 
     // getMatches
     @Test
-    void getMatches_withNoFilters_returnsAllMatches() {
+    void shouldReturnAllMatchesWithNoFilters() {
         JpaSpecificationExecutor<Match> specExecutor = matchRepository;
         Pageable pageable = PageRequest.of(0, 20);
         Match match = buildMatch();
         MatchDto dto = buildMatchDto();
         Page<Match> matchPage = new PageImpl<>(List.of(match), pageable, 1);
+        Page<MatchDto> matchDtoPage = new PageImpl<>(List.of(dto), pageable, 1);
 
         when(matchSpecs.isLive(null)).thenReturn(EMPTY_SPEC);
         when(matchSpecs.hasPlayer(null)).thenReturn(EMPTY_SPEC);
@@ -78,16 +83,16 @@ class MatchServiceTest {
         when(specExecutor.findAll(any(), eq(pageable))).thenReturn(matchPage);
         when(matchMapper.toDto(match)).thenReturn(dto);
 
-        Page<MatchDto> result = matchService.getMatches(
-                null, null, null, null, null, null, null, pageable);
+        MatchFilterParams params = new MatchFilterParams(null, null, null, null, null, null, null);
+        Page<MatchDto> result = matchService.getMatches(params, pageable);
 
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertNotNull(result);
+        assertEquals(matchDtoPage, result);
         verify(specExecutor).findAll(any(), eq(pageable));
     }
 
     @Test
-    void getMatches_withAllFilters_passesSpecsToRepository() {
+    void shouldPassSpecsToRepository() {
         JpaSpecificationExecutor<Match> specExecutor = matchRepository;
         Pageable pageable = PageRequest.of(0, 20);
         LocalDate dateFrom = LocalDate.of(2025, 1, 1);
@@ -101,7 +106,8 @@ class MatchServiceTest {
         when(matchSpecs.dateBefore(dateTo)).thenReturn(EMPTY_SPEC);
         when(specExecutor.findAll(any(), eq(pageable))).thenReturn(Page.empty());
 
-        matchService.getMatches(true, 1L, 1L, 2L, 1L, dateFrom, dateTo, pageable);
+        MatchFilterParams params = new MatchFilterParams(true, 1L, 1L, 2L, 1L, dateFrom, dateTo);
+        matchService.getMatches(params, pageable);
 
         verify(matchSpecs).isLive(true);
         verify(matchSpecs).hasPlayer(1L);
@@ -113,7 +119,7 @@ class MatchServiceTest {
     }
 
     @Test
-    void getMatches_whenEmpty_returnsEmptyPage() {
+    void shouldReturnEmptyPageWhenEmpty() {
         JpaSpecificationExecutor<Match> specExecutor = matchRepository;
         Pageable pageable = PageRequest.of(0, 20);
 
@@ -125,15 +131,15 @@ class MatchServiceTest {
         when(matchSpecs.dateBefore(null)).thenReturn(EMPTY_SPEC);
         when(specExecutor.findAll(any(), eq(pageable))).thenReturn(Page.empty());
 
-        Page<MatchDto> result = matchService.getMatches(
-                null, null, null, null, null, null, null, pageable);
+        MatchFilterParams params = new MatchFilterParams(null, null, null, null, null, null, null);
+        Page<MatchDto> result = matchService.getMatches(params, pageable);
 
         assertThat(result.getContent()).isEmpty();
     }
 
     // getMatchById
     @Test
-    void getMatchById_whenExists_returnsDto() {
+    void shouldReturnDtoWhenExists() {
         Match match = buildMatch();
         MatchDto dto = buildMatchDto();
 
@@ -142,15 +148,14 @@ class MatchServiceTest {
 
         MatchDto result = matchService.getMatchById(1L);
 
-        assertThat(result.id()).isEqualTo(1L);
-        assertThat(result.firstPlayerName()).isEqualTo("Novak Djokovic");
-        assertThat(result.secondPlayerName()).isEqualTo("Rafael Nadal");
-        verify(matchRepository).getMatchByIdWithPlayers(1L);
-        verify(matchMapper).toDto(match);
+        assertNotNull(result);
+        assertEquals(dto, result);
+        verify(matchRepository, times(1)).getMatchByIdWithPlayers(1L);
+        verify(matchMapper, times(1)).toDto(match);
     }
 
     @Test
-    void getMatchById_whenNotExists_throwsResourceNotFoundException() {
+    void shouldThrowResourceNotFoundExceptionWhenNotExists() {
         when(matchRepository.getMatchByIdWithPlayers(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> matchService.getMatchById(99L))
