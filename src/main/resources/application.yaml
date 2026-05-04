@@ -28,3 +28,7 @@ scheduler:
     fixtures-cron: "0 0 4 * * *"
     livescores-delay-ms: 120000
     livescores-initial-delay-ms: 60000
+
+app:
+  sync:
+    player-ttl-hours: 24

@@ -1,5 +1,6 @@
 package app.tennisapp.service;
 
+import app.tennisapp.config.SyncConfig;
 import app.tennisapp.dto.PlayerDto;
 import app.tennisapp.dto.PlayerSeasonStatsDto;
 import app.tennisapp.entity.Player;
@@ -9,6 +10,7 @@ import app.tennisapp.mapper.PlayerMapper;
 import app.tennisapp.repository.PlayerRepository;
 import app.tennisapp.repository.PlayerSeasonStatsRepository;
 import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,6 +28,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,8 +49,16 @@ class PlayerServiceTest {
     @Mock
     private EntityManager entityManager;
 
+    @Mock
+    private SyncConfig syncConfig;
+
     @InjectMocks
     private PlayerService playerService;
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(syncConfig.getPlayerTtlHours()).thenReturn(24L);
+    }
 
     private Player samplePlayer() {
         return Player.builder()
@@ -142,7 +154,7 @@ class PlayerServiceTest {
         Page<PlayerDto> result = playerService.getPlayers(null, nationality, pageable);
 
         assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).nationality()).isEqualTo("ESP");
+        assertThat(result.getContent().getFirst().nationality()).isEqualTo("ESP");
         verify(playerRepository, times(1)).findByNationalityIgnoreCase(nationality, pageable);
         verify(playerRepository, never()).findAllPaged(any());
         verify(playerRepository, never()).findByFullNameContainingIgnoreCase(any(), any());
@@ -183,20 +195,24 @@ class PlayerServiceTest {
         assertThat(result.getTotalElements()).isZero();
     }
 
-    // getPlayerById
     @Test
-    void shouldReturnPlayerByIdWhenAlreadySynced() {
-        Player player = samplePlayer(); // lastSyncedAt != null
+    void shouldTriggerSyncWhenPlayerDataIsStale() {
+        Player player = Player.builder()
+                .id(1L)
+                .externalId(100L)
+                .fullName("Carlos Alcaraz")
+                .nationality("ESP")
+                .lastSyncedAt(LocalDateTime.now().minusHours(25)) // stare dane
+                .build();
         PlayerDto playerDto = samplePlayerDto();
 
         when(playerRepository.findById(1L)).thenReturn(Optional.of(player));
         when(playerMapper.toDto(player)).thenReturn(playerDto);
 
-        PlayerDto result = playerService.getPlayerById(1L);
+        playerService.getPlayerById(1L);
 
-        assertThat(result).isEqualTo(playerDto);
-        verify(syncService, never()).syncPlayer(anyLong());
-        verify(entityManager, never()).refresh(any());
+        verify(syncService, times(1)).syncPlayer(100L);
+        verify(entityManager, times(1)).refresh(player);
     }
 
     @Test
@@ -218,6 +234,28 @@ class PlayerServiceTest {
         assertThat(result).isEqualTo(playerDto);
         verify(syncService, times(1)).syncPlayer(100L);
         verify(entityManager, times(1)).refresh(player);
+    }
+
+    @Test
+    void shouldReturnPlayerByIdWhenAlreadySynced() {
+        Player player = Player.builder()
+                .id(1L)
+                .externalId(100L)
+                .fullName("Carlos Alcaraz")
+                .nationality("ESP")
+                .lastSyncedAt(LocalDateTime.now()) // świeże dane → brak synca
+                .build();
+        PlayerDto playerDto = samplePlayerDto();
+
+        when(playerRepository.findById(1L)).thenReturn(Optional.of(player));
+        when(playerMapper.toDto(player)).thenReturn(playerDto);
+
+        PlayerDto result = playerService.getPlayerById(1L);
+
+        assertNotNull(result);
+        assertEquals(playerDto, result);
+        verify(syncService, never()).syncPlayer(anyLong());
+        verify(entityManager, never()).refresh(any());
     }
 
     @Test
@@ -249,8 +287,8 @@ class PlayerServiceTest {
         List<PlayerSeasonStatsDto> result = playerService.getPlayerStats(playerId);
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).season()).isEqualTo("2024");
-        assertThat(result.get(0).matchesWon()).isEqualTo(60);
+        assertThat(result.getFirst().season()).isEqualTo("2024");
+        assertThat(result.getFirst().matchesWon()).isEqualTo(60);
         verify(playerRepository, times(1)).existsById(playerId);
         verify(playerSeasonStatsRepository, times(1)).findByPlayerId(playerId);
     }

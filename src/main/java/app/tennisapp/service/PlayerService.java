@@ -1,5 +1,6 @@
 package app.tennisapp.service;
 
+import app.tennisapp.config.SyncConfig;
 import app.tennisapp.dto.PlayerDto;
 import app.tennisapp.dto.PlayerSeasonStatsDto;
 import app.tennisapp.entity.Player;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -27,6 +29,7 @@ public class PlayerService {
     private final PlayerMapper playerMapper;
     private final SyncService syncService;
     private final EntityManager entityManager;
+    private final SyncConfig syncConfig;
 
     @Transactional(readOnly = true)
     public Page<PlayerDto> getPlayers(String name, String nationality, Pageable pageable) {
@@ -58,10 +61,11 @@ public class PlayerService {
                     return new ResourceNotFoundException("Player not found: " + id);
                 });
 
-        if (player.getLastSyncedAt() == null) {
-            log.info("Player id={} is incomplete, triggering sync", id);
+        if (isPlayerDataStale(player)) {
+            log.info("Player id={} data is stale (lastSyncedAt={}), triggering sync",
+                    id, player.getLastSyncedAt());
             syncService.syncPlayer(player.getExternalId());
-            entityManager.refresh(player); // odświeża entity playera po zsynchronizowaniu
+            entityManager.refresh(player);
         }
 
         return playerMapper.toDto(player);
@@ -75,5 +79,13 @@ public class PlayerService {
             throw new ResourceNotFoundException("Player not found: " + playerId);
         }
         return playerMapper.toStatsDto(playerSeasonStatsRepository.findByPlayerId(playerId));
+    }
+
+    private boolean isPlayerDataStale(Player player) {
+        if (player.getLastSyncedAt() == null) {
+            return true;
+        }
+        LocalDateTime threshold = LocalDateTime.now().minusHours(syncConfig.getPlayerTtlHours());
+        return player.getLastSyncedAt().isBefore(threshold);
     }
 }
