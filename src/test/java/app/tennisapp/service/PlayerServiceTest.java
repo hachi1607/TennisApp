@@ -59,12 +59,12 @@ class PlayerServiceTest {
 
     private PlayerDto samplePlayerDto() {
         return new PlayerDto(1L, 100L, "Carlos Alcaraz", "ESP",
-                LocalDate.of(2003, 5, 5), null, "https://example.com/alcaraz.jpg");
+                LocalDate.of(2003, 5, 5), "https://example.com/alcaraz.jpg");
     }
 
     private PlayerDto samplePlayerDto(String name, String nationality) {
         return new PlayerDto(1L, 100L, name, nationality,
-                LocalDate.of(2003, 5, 5), null, "https://example.com/alcaraz.jpg");
+                LocalDate.of(2003, 5, 5), "https://example.com/alcaraz.jpg");
     }
 
     private PlayerSeasonStats sampleSeasonStats(Player player) {

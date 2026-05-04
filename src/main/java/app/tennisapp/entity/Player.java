@@ -29,8 +29,6 @@ public class Player {
 
     private LocalDate birthDate;
 
-    private String bio;
-
     private String imageUrl;
 
     private LocalDateTime lastSyncedAt;
